@@ -66,12 +66,12 @@ public class UserService {
         return userRepository.existsByUsername(username);
     }
 
-    protected User getUserByUsernameWithProfileAndTasks(String username) {
+    protected User getFullUserByUsername(String username) {
         return userRepository.findFullByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public UserOutput getUserDtoByUsernameWithProfileAndTasks(String username) {
-        return userMapper.toOutput(getUserByUsernameWithProfileAndTasks(username));
+        return userMapper.toOutput(getFullUserByUsername(username));
     }
 
     protected List<User> getAllUsersByProfileId(Long profileId) {

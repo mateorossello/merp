@@ -1,8 +1,6 @@
 package dev.mateorossello.merp.AccessModule.Services;
 
 import dev.mateorossello.merp.AccessModule.Models.Profile;
-import dev.mateorossello.merp.AccessModule.Models.Task;
-import dev.mateorossello.merp.AccessModule.Models.TaskType;
 import dev.mateorossello.merp.AccessModule.Models.User;
 import dev.mateorossello.merp.Configuration.JwtManager;
 import dev.mateorossello.merp.Exceptions.ResourceNotFoundException;
@@ -29,7 +27,7 @@ public class AuthenticationService {
         User userStored;
 
         try {
-            userStored = userService.getUserByUsernameWithProfileAndTasks(username);
+            userStored = userService.getFullUserByUsername(username);
         } catch (ResourceNotFoundException exception) {
             throw new UnauthorizedException("Invalid credentials");
         }
@@ -39,7 +37,7 @@ public class AuthenticationService {
         }
 
         Profile profile = userStored.getProfile();
-        List<TaskType> tasks = profile.getTasks().stream().map(Task::getName).toList();
+        List<String> tasks = profile.getTasks().stream().map(task -> task.getName().name()).toList();
 
         return jwtManager.generateToken(userStored.getUsername(), profile.getName(), tasks);
     }

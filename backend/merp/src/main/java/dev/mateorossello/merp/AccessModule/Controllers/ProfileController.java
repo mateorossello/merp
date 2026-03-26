@@ -64,8 +64,8 @@ public class ProfileController {
 
     @PutMapping("/{id}/tasks")
     @PreAuthorize("hasAuthority('MANAGE_PROFILES')")
-    public ResponseEntity<Void> updateProfileTasks(@PathVariable("id") Long profileId, @RequestBody List<Long> newTasks) {
-        profileService.updateProfileTasks(profileId, newTasks);
+    public ResponseEntity<Void> updateProfileTasks(@PathVariable("id") Long profileId, @RequestBody Long[] newTasks) {
+        profileService.updateProfileTasks(profileId, List.of(newTasks));
         return ResponseEntity.noContent().build();
     }
 }
