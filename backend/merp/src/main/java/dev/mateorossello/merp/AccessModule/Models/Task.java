@@ -1,6 +1,7 @@
 package dev.mateorossello.merp.AccessModule.Models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -17,6 +18,7 @@ public class Task {
     @Column(name = "task_id")
     private long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "task_name", unique = true, nullable = false)
     @EqualsAndHashCode.Include

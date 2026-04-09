@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "profile", ignore = true)
-    User toEntity(UserInput user);
+    User toEntity(UserInput userInput);
     
     UserOutput toOutput(User user);
     List<UserOutput> toOutputList(List<User> users);

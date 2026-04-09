@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 public interface ProfileMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tasks", ignore = true)
-    Profile toEntity(ProfileInput profile);
+    Profile toEntity(ProfileInput profileInput);
     
     ProfileOutput toOutput(Profile profile);
     List<ProfileOutput> toOutputList(List<Profile> profiles);
