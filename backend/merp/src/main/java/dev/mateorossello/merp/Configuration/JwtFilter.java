@@ -33,6 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 if (decodedJWT != null) {
                     String username = decodedJWT.getSubject();
+                    Long id = decodedJWT.getClaim("id").asLong();
                     String profile = decodedJWT.getClaim("profile").asString();
                     List<String> tasks = decodedJWT.getClaim("tasks").asList(String.class);
 
@@ -46,7 +47,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     }
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        username, 
+                        new CustomUser(id, username),
                         null,
                         authorities
                     );

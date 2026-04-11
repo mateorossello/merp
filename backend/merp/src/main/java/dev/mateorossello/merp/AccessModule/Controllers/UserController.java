@@ -5,18 +5,22 @@ import dev.mateorossello.merp.AccessModule.DTOs.UserOutput;
 import dev.mateorossello.merp.AccessModule.Services.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller class for managing users. Provides methods for creating, deleting, updating and retrieving users.
+ */
+
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    // Create methods
 
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
@@ -24,12 +28,18 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(newUser));
     }
 
+    // Delete methods
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+    
+    //
+    // Get methods
+    //
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('VIEW_USERS')")
@@ -37,9 +47,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserDtoById(id));
     }
 
+    // Username related methods
+
     @GetMapping("/exists/username")
     @PreAuthorize("hasAuthority('VIEW_USERS')")
-    public ResponseEntity<Boolean> existeUsuarioNombreUsuario(@RequestParam String username) {
+    public ResponseEntity<Boolean> existsUserByUsername(@RequestParam String username) {
         return ResponseEntity.ok(userService.existsUserByUsername(username));
     }
 
@@ -48,6 +60,8 @@ public class UserController {
     public ResponseEntity<UserOutput> getUserByUsernameWithProfileAndTasks(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserDtoByUsernameWithProfileAndTasks(username));
     }
+
+    // Profile related methods
 
     @GetMapping("/by-profile")
     @PreAuthorize("hasAuthority('VIEW_USERS')")
@@ -61,13 +75,15 @@ public class UserController {
         return ResponseEntity.ok(userService.existsUserByProfileId(profileId));
     }
 
+    // Other methods
+
     @GetMapping
     @PreAuthorize("hasAuthority('VIEW_USERS')")
     public ResponseEntity<List<UserOutput>> getUsers(@RequestParam(required = false) String name) {
-        if(name != null) {
-            return ResponseEntity.ok(List.of(userService.getUserDtoByUsername(name)));
-        }
-
-        return ResponseEntity.ok(userService.getAllUserDtos());
+        return ResponseEntity.ok(
+            name != null
+                ? List.of(userService.getUserDtoByUsername(name))
+                : userService.getAllUserDtos()
+        );
     }
 }

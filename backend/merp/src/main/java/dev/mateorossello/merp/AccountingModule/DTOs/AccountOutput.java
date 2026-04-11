@@ -15,7 +15,7 @@ public record AccountOutput(
 
     String description,
 
-    Boolean receiveBalance,
+    boolean receiveBalance,
 
-    Boolean state
+    boolean state
 ) {}

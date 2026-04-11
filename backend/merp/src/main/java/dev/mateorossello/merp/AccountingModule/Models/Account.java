@@ -5,6 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+/**
+ * Entity representing an account in the accounting system.
+ */
+
 @Entity
 @Getter
 @Setter

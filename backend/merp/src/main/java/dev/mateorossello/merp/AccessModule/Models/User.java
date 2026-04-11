@@ -5,6 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+/**
+ * Entity representing a user in the access system.
+ */
+
 @Entity
 @Getter
 @Setter
@@ -17,7 +21,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long id;
+    private Long id;
 
     @NotBlank
     @Column(name = "username", unique = true, nullable = false)

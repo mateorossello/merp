@@ -6,6 +6,10 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.*;
 
+/**
+ * Entity representing a profile in the access system.
+ */
+
 @Entity
 @Getter
 @Setter
@@ -18,7 +22,7 @@ public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_id")
-    private long id;
+    private Long id;
 
     @NotBlank
     @Column(name = "profile_name", unique = true, nullable = false)

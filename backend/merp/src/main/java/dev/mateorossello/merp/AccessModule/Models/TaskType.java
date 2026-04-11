@@ -1,5 +1,9 @@
 package dev.mateorossello.merp.AccessModule.Models;
 
+/**
+ * Enum representing the different types of tasks (permissions) that can be assigned to profiles in the access system.
+ */
+
 public enum TaskType {
     MANAGE_USERS,
     VIEW_USERS,
@@ -8,4 +12,10 @@ public enum TaskType {
     VIEW_PROFILES,
 
     VIEW_TASKS,
+
+    MANAGE_ACCOUNTS,
+    VIEW_ACCOUNTS,
+
+    MANAGE_JOURNAL_ENTRIES,
+    VIEW_JOURNAL_ENTRIES
 }

@@ -9,22 +9,23 @@ import dev.mateorossello.merp.Exceptions.ResourceConflictException;
 import dev.mateorossello.merp.Exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for managing users. Provides methods for creating, deleting, updating and retrieving users.
+ */
+
 @Service
+@AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final ProfileService profileService;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, ProfileService profileService, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.profileService = profileService;
-        this.passwordEncoder = passwordEncoder;
-    }
+    // Create methods
 
     @Transactional
     public UserOutput createUser(UserInput newUser) {
@@ -40,11 +41,18 @@ public class UserService {
         return userMapper.toOutput(user);
     }
 
+    // Delete methods
+
+    @Transactional
     public void deleteUser(Long id) {
         User user = getUserById(id);
 
         userRepository.delete(user);
     }
+
+    //
+    // Get methods
+    //
 
     protected User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -53,6 +61,8 @@ public class UserService {
     public UserOutput getUserDtoById(Long id) {
         return userMapper.toOutput(getUserById(id));
     }
+    
+    // Username related methods
 
     protected User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -66,13 +76,15 @@ public class UserService {
         return userRepository.existsByUsername(username);
     }
 
-    protected User getFullUserByUsername(String username) {
+    protected User getUserByUsernameWithProfileAndTasks(String username) {
         return userRepository.findFullByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public UserOutput getUserDtoByUsernameWithProfileAndTasks(String username) {
-        return userMapper.toOutput(getFullUserByUsername(username));
+        return userMapper.toOutput(getUserByUsernameWithProfileAndTasks(username));
     }
+
+    // Profile related methods
 
     protected List<User> getAllUsersByProfileId(Long profileId) {
         return userRepository.findAllByProfileId(profileId);
@@ -85,6 +97,8 @@ public class UserService {
     public boolean existsUserByProfileId(Long id) {
         return userRepository.existsByProfileId(id);
     }
+
+    // Other methods
 
     protected List<User> getAllUsers() {
         return userRepository.findAll();

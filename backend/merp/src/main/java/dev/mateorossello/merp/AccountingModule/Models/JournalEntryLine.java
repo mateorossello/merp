@@ -6,6 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import lombok.*;
 
+/**
+ * Entity representing a line in a journal entry in the accounting system.
+ */
+
 @Entity
 @Getter
 @Setter
@@ -38,7 +42,7 @@ public class JournalEntryLine {
 
     @NotNull
     @Column(name = "is_debit", nullable = false)
-    private Boolean isDebit;
+    private boolean isDebit;
 
     @Column(name = "reference")
     private String reference;

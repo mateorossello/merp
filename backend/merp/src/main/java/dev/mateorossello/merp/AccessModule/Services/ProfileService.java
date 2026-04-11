@@ -12,20 +12,23 @@ import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for managing profiles. Provides methods for creating, deleting, updating and retrieving profiles.
+ */
+
 @Service
+@AllArgsConstructor
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
     private final TaskService taskService;
 
-    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, TaskService taskService) {
-        this.profileRepository = profileRepository;
-        this.profileMapper = profileMapper;
-        this.taskService = taskService;
-    }
+    // Create methods
 
+    @Transactional
     public ProfileOutput createProfile(ProfileInput newProfile) {
         if(existsProfileByName(newProfile.name())) {
             throw new ResourceConflictException("Profile already exists");
@@ -36,6 +39,9 @@ public class ProfileService {
         return profileMapper.toOutput(profile);
     }
 
+    // Delete methods
+
+    @Transactional
     public void deleteProfile(Long profileId) {
         Profile profile = getProfileByIdWithTasks(profileId);
 
@@ -46,6 +52,22 @@ public class ProfileService {
         }
     }
 
+    // Update methods
+
+    @Transactional
+    public void updateProfileTasks(Long profileId, List<Long> newTasks) {
+        Profile profile = getProfileByIdWithTasks(profileId);
+
+        Set<Task> tasks = new HashSet<>(taskService.getTasksByIds(newTasks));
+
+        profile.updateTasks(tasks);
+        profileRepository.save(profile);
+    }
+
+    //
+    // Get methods
+    //
+
     protected Profile getProfileById(Long id) {
         return profileRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
     }
@@ -53,6 +75,8 @@ public class ProfileService {
     public ProfileOutput getProfileDtoById(Long id) {
         return profileMapper.toOutput(getProfileById(id));
     }
+
+    // Name related methods
 
     protected Profile getProfileByName(String name) {
         return profileRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -66,6 +90,8 @@ public class ProfileService {
         return profileRepository.existsByName(name);
     }
 
+    // ID related methods
+
     protected Profile getProfileByIdWithTasks(Long id) {
         return profileRepository.findFullById(id).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
     }
@@ -74,21 +100,13 @@ public class ProfileService {
         return profileMapper.toOutput(getProfileByIdWithTasks(id));
     }
 
+    // Other methods
+
     protected List<Profile> getAllProfiles() {
         return profileRepository.findAll();
     }
 
     public List<ProfileOutput> getAllProfileDtos() {
         return profileMapper.toOutputList(getAllProfiles());
-    }
-
-    @Transactional
-    public void updateProfileTasks(Long profileId, List<Long> newTasks) {
-        Profile profile = getProfileByIdWithTasks(profileId);
-
-        Set<Task> tasks = new HashSet<>(taskService.getTasksByIds(newTasks));
-
-        profile.updateTasks(tasks);
-        profileRepository.save(profile);
     }
 }

@@ -20,9 +20,10 @@ public class JwtManager {
         return Algorithm.HMAC512(secretKey);
     }
 
-    public String generateToken(String subject, String profile, List<String> tasks) {
+    public String generateToken(String subject, Long id, String profile, List<String> tasks) {
         return JWT.create()
             .withSubject(subject)
+            .withClaim("id", id)
             .withClaim("profile", profile)
             .withClaim("tasks", tasks)
             .withIssuedAt(new Date())

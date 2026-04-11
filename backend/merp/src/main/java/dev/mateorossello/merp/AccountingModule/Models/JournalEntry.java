@@ -10,6 +10,10 @@ import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+/**
+ * Entity representing a journal entry in the accounting system.
+ */
+
 @Entity
 @Getter
 @Setter

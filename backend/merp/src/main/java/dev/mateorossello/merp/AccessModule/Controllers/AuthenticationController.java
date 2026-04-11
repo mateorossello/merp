@@ -4,17 +4,21 @@ import dev.mateorossello.merp.AccessModule.DTOs.LoginInput;
 import dev.mateorossello.merp.AccessModule.Services.AuthenticationService;
 import jakarta.validation.Valid;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller class for managing authentication. Provides methods for user login.
+ */
+
 @RestController
 @RequestMapping("/authentication")
+@AllArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
-    public AuthenticationController(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
+    // Login methods
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginInput loginInput) {
