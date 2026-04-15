@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Profile } from "../../types/Profile";
-import type { Task } from "../../types/Task";
+import type { Profile } from "../../types/access/Profile";
+import type { Task } from "../../types/access/Task";
 import api from "../../utils/api";
 import { getCurrentProfile, extractFirstError } from "../../utils/methods";
 
@@ -128,14 +128,6 @@ function ManageProfiles() {
         </div>
       </div>
 
-      {result && (
-        <div
-          className={`p-4 mb-6 rounded-xl font-medium text-center ${isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-        >
-          {result}
-        </div>
-      )}
-
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -223,6 +215,21 @@ function ManageProfiles() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {result && (
+        <div
+          className={`max-w-md mx-auto mt-4 p-4 mb-6 rounded-xl font-medium text-center ${isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+        >
+          {result}
+        </div>
+      )}
+
+      <div className="flex justify-end mt-6">
+        <div className="bg-blue-50 text-primary px-6 py-2.5 rounded-xl font-bold border border-blue-100 shadow-sm flex items-center gap-2">
+          <span className="text-sm opacity-70 font-medium">Total Profiles</span>
+          <span className="text-lg">{profiles.length}</span>
+        </div>
       </div>
     </div>
   );

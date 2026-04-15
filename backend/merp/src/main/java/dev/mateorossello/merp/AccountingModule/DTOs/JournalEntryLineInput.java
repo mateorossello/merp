@@ -13,7 +13,7 @@ public record JournalEntryLineInput(
     BigDecimal amount,
 
     @NotNull(message = "Must specify if it is a debit or credit")
-    Boolean isDebit,
+    Boolean debit,
 
     String reference
 ) {}

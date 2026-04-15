@@ -64,7 +64,7 @@ public class JournalEntryService {
                 throw new ResourceConflictException("Journal entry line amounts must be strictly greater than zero");
             }
 
-            if (journalEntryLine.isDebit()) {
+            if (journalEntryLine.debit()) {
                 totalDebits = totalDebits.add(journalEntryLine.amount());
             } else {
                 totalCredits = totalCredits.add(journalEntryLine.amount());

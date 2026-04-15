@@ -22,6 +22,17 @@ import DeleteUsers from "./pages/users/DeleteUsers";
 
 import ManageProfiles from "./pages/profiles/ManageProfiles";
 
+import ManageAccounts from "./pages/accounts/ManageAccounts";
+import ShowAccounts from "./pages/accounts/ShowAccounts";
+import CreateAccounts from "./pages/accounts/CreateAccounts";
+import EditAccounts from "./pages/accounts/EditAccounts";
+import DeleteAccounts from "./pages/accounts/DeleteAccounts";
+
+import ManageJournalEntries from "./pages/journal-entries/ManageJournalEntries";
+
+import GeneralJournal from "./pages/reports/GeneralJournal";
+import GeneralLedger from "./pages/reports/GeneralLedger";
+
 function App() {
   return (
     <Router>
@@ -53,6 +64,41 @@ function App() {
               element={<ProtectedRoute requiredTask={TASKS.MANAGE_PROFILES} />}
             >
               <Route path="/manage-profiles" element={<ManageProfiles />} />
+            </Route>
+
+            {/* Accounts */}
+            <Route
+              element={<ProtectedRoute requiredTask={TASKS.MANAGE_ACCOUNTS} />}
+            >
+              <Route path="/manage-accounts">
+                <Route index element={<ManageAccounts />} />
+                <Route path="show" element={<ShowAccounts />} />
+                <Route path="create" element={<CreateAccounts />} />
+                <Route path="edit" element={<EditAccounts />} />
+                <Route path="delete" element={<DeleteAccounts />} />
+              </Route>
+            </Route>
+
+            {/* Journal Entries */}
+            <Route
+              element={
+                <ProtectedRoute requiredTask={TASKS.MANAGE_JOURNAL_ENTRIES} />
+              }
+            >
+              <Route
+                path="/manage-journal-entries"
+                element={<ManageJournalEntries />}
+              />
+            </Route>
+
+            {/* General Journal and General Ledger */}
+            <Route
+              element={<ProtectedRoute requiredTask={TASKS.VIEW_REPORTS} />}
+            >
+              <Route path="/reports">
+                <Route path="general-journal" element={<GeneralJournal />} />
+                <Route path="general-ledger" element={<GeneralLedger />} />
+              </Route>
             </Route>
           </Route>
         </Route>

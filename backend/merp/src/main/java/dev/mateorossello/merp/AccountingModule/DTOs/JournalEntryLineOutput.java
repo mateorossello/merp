@@ -11,7 +11,7 @@ public record JournalEntryLineOutput(
     
     BigDecimal amount,
 
-    boolean isDebit,
+    boolean debit,
 
     String reference
 ) {}

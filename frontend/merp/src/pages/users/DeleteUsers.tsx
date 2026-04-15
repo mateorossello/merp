@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { User } from "../../types/User";
+import type { User } from "../../types/access/User";
 import api from "../../utils/api";
 import { getCurrentUsername, extractFirstError } from "../../utils/methods";
 
@@ -49,6 +49,7 @@ function DeleteUsers() {
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-extrabold text-gray-800">Delete Users</h1>
+
         <button
           onClick={() => navigate("/manage-users")}
           className="text-gray-500 hover:text-primary flex items-center gap-1 font-medium cursor-pointer transition-colors"
@@ -57,20 +58,14 @@ function DeleteUsers() {
         </button>
       </div>
 
-      {result && (
-        <div
-          className={`p-4 mb-6 rounded-xl font-medium text-center ${isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-        >
-          {result}
-        </div>
-      )}
-
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50 text-gray-800 border-b border-gray-100 text-sm uppercase tracking-wider">
-              <th className="p-6 font-semibold">Id</th>
+              <th className="p-6 font-semibold">ID</th>
+
               <th className="p-6 font-semibold">Username</th>
+
               <th></th>
             </tr>
           </thead>
@@ -104,6 +99,22 @@ function DeleteUsers() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {result && (
+        <div
+          className={`max-w-md mx-auto mt-4 p-4 mb-6 rounded-xl font-medium text-center ${isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+        >
+          {result}
+        </div>
+      )}
+
+      <div className="flex justify-end mt-6">
+        <div className="bg-blue-50 text-primary px-6 py-2.5 rounded-xl font-bold border border-blue-100 shadow-sm flex items-center gap-2">
+          <span className="text-sm opacity-70 font-medium">Total Users</span>
+
+          <span className="text-lg">{users.length}</span>
+        </div>
       </div>
     </div>
   );

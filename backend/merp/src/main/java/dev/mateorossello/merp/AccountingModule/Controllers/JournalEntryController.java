@@ -48,15 +48,15 @@ public class JournalEntryController {
     @GetMapping("/by-date")
     @PreAuthorize("hasAuthority('VIEW_JOURNAL_ENTRIES')")
     public ResponseEntity<List<JournalEntryOutput>> getAllJournalEntriesByEntryDate(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate entryDate) {
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate entryDate) {
         return ResponseEntity.ok(journalEntryService.getAllJournalEntryDtosByEntryDate(entryDate));
     }
 
     @GetMapping("/between-dates")
     @PreAuthorize("hasAuthority('VIEW_JOURNAL_ENTRIES')")
     public ResponseEntity<List<JournalEntryOutput>> getAllJournalEntriesByEntryDateBetween(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(journalEntryService.getAllJournalEntryDtosByEntryDateBetween(startDate, endDate));
     }
 
@@ -71,8 +71,8 @@ public class JournalEntryController {
     @GetMapping("/created-between")
     @PreAuthorize("hasAuthority('VIEW_JOURNAL_ENTRIES')")
     public ResponseEntity<List<JournalEntryOutput>> getAllJournalEntriesByCreatedAtBetween(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         return ResponseEntity.ok(journalEntryService.getAllJournalEntryDtosByCreatedAtBetween(startDate, endDate));
     }
 

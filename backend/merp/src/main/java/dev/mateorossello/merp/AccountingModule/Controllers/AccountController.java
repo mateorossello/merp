@@ -101,35 +101,17 @@ public class AccountController {
         return ResponseEntity.ok(accountService.existsByName(name));
     }
 
-    // State and receive balance related methods
-
-    @GetMapping("/receive-balance")
-    @PreAuthorize("hasAuthority('VIEW_ACCOUNTS')")
-    public ResponseEntity<List<AccountOutput>> getAllAccountsByReceiveBalance(@RequestParam boolean receiveBalance) {
-        return ResponseEntity.ok(accountService.getAllAccountDtosByReceiveBalance(receiveBalance));
-    }
-
-    @GetMapping("/state")
-    @PreAuthorize("hasAuthority('VIEW_ACCOUNTS')")
-    public ResponseEntity<List<AccountOutput>> getAllAccountsByState(@RequestParam boolean state) {
-        return ResponseEntity.ok(accountService.getAllAccountDtosByState(state));
-    }
-
-    @GetMapping("/receive-balance-and-state")
-    @PreAuthorize("hasAuthority('VIEW_ACCOUNTS')")
-    public ResponseEntity<List<AccountOutput>> getAllAccountsByReceiveBalanceAndState(@RequestParam boolean receiveBalance, @RequestParam boolean state) {
-        return ResponseEntity.ok(accountService.getAllAccountDtosByReceiveBalanceAndState(receiveBalance, state));
-    }
-
     // Other methods
 
     @GetMapping
     @PreAuthorize("hasAuthority('VIEW_ACCOUNTS')")
-    public ResponseEntity<List<AccountOutput>> getAccounts(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<AccountOutput>> getAccounts(@RequestParam(required = false) String name, @RequestParam(required = false) Boolean receiveBalance, @RequestParam(required = false) Boolean state) {
         return ResponseEntity.ok(
-            name != null
-                ? List.of(accountService.getAccountDtoByName(name))
-                : accountService.getAllAccountDtos()
+            name != null ? List.of(accountService.getAccountDtoByName(name)) :
+            (receiveBalance != null && state != null) ? accountService.getAllAccountDtosByReceiveBalanceAndState(receiveBalance, state) :
+            receiveBalance != null ? accountService.getAllAccountDtosByReceiveBalance(receiveBalance) :
+            state != null ? accountService.getAllAccountDtosByState(state) :
+            accountService.getAllAccountDtos()
         );
     }
 }

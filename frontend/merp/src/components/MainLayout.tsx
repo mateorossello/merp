@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { NavLink, Outlet, type NavLinkProps } from "react-router-dom";
 import { TASKS } from "../constants/tasks";
 import { usePermissions } from "../utils/methods";
@@ -27,10 +26,6 @@ const MenuItem = ({ to, icon, label }: MenuItem) => {
 
 function MainLayout() {
   const { hasPermission } = usePermissions();
-
-  useEffect(() => {
-    document.title = "MERP - Main Menu - Accounting";
-  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -63,6 +58,38 @@ function MainLayout() {
               icon="admin_panel_settings"
               label="Profiles"
             />
+          )}
+
+          {hasPermission(TASKS.MANAGE_ACCOUNTS) && (
+            <MenuItem
+              to="/manage-accounts"
+              icon="account_tree"
+              label="Accounts"
+            />
+          )}
+
+          {hasPermission(TASKS.MANAGE_JOURNAL_ENTRIES) && (
+            <MenuItem
+              to="/manage-journal-entries"
+              icon="receipt_long"
+              label="Journal Entries"
+            />
+          )}
+
+          {hasPermission(TASKS.VIEW_REPORTS) && (
+            <>
+              <MenuItem
+                to="/reports/general-journal"
+                icon="description"
+                label="General Journal"
+              />
+
+              <MenuItem
+                to="/reports/general-ledger"
+                icon="book"
+                label="General Ledger"
+              />
+            </>
           )}
 
           <div className="mt-auto pt-4 flex flex-col">

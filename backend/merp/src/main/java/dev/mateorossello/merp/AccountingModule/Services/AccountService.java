@@ -10,6 +10,7 @@ import dev.mateorossello.merp.Exceptions.ResourceConflictException;
 import dev.mateorossello.merp.Exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,10 @@ public class AccountService {
 
     @Transactional
     public AccountOutput createAccount(AccountInput newAccount) {
+        if(!newAccount.code().matches("^\\d+(\\.\\d+)*$")) {
+            throw new ResourceConflictException("Account not created, code must follow hierarchical format with numbers separated by dots");
+        }
+
         if(existsByCode(newAccount.code())) {
             throw new ResourceConflictException("Account not created, another account with the same code already exists");
         }
@@ -41,8 +46,8 @@ public class AccountService {
         if(newAccount.parentAccountId() != null) {
             Account parentAccount = accountRepository.findById(newAccount.parentAccountId()).orElseThrow(() -> new ResourceNotFoundException("Parent account not found"));
 
-            if (!newAccount.code().startsWith(parentAccount.getCode())) {
-                throw new ResourceConflictException("Account not created, code must start with parent account code");
+            if (!newAccount.code().matches("^" + Pattern.quote(parentAccount.getCode()) + "\\.\\d+$")) {
+                throw new ResourceConflictException("Account not created, code must be a direct child of the parent account");
             }
 
             if (journalEntryLineService.existsByAccountId(parentAccount.getId())) {
@@ -52,13 +57,13 @@ public class AccountService {
             parentAccount.setReceiveBalance(false);
             accountRepository.save(parentAccount);
 
-            account = new Account(parentAccount, newAccount.code(), newAccount.name(), newAccount.description());
+            account = Account.builder().parentAccount(parentAccount).code(newAccount.code()).name(newAccount.name()).description(newAccount.description()).build();
         } else {
             if (newAccount.type() == null) {
                 throw new IllegalArgumentException("Account type or parent account must be provided");
             }
 
-            account = new Account(newAccount.code(), newAccount.type(), newAccount.name(), newAccount.description());
+            account = Account.builder().code(newAccount.code()).type(newAccount.type()).name(newAccount.name()).description(newAccount.description()).build();
         }
 
         return accountMapper.toOutput(accountRepository.save(account));

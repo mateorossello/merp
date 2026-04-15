@@ -53,19 +53,4 @@ public class Account {
     @Builder.Default
     @Column(name = "state", nullable = false)
     private boolean state = true;
-
-    public Account(String code, AccountType type, String name, String description) {
-        this.code = code;
-        this.type = type;
-        this.name = name;
-        this.description = description;
-    }
-
-    public Account(Account parentAccount, String code, String name, String description) {
-        this.parentAccount = parentAccount;
-        this.code = code;
-        this.type = parentAccount.getType();
-        this.name = name;
-        this.description = description;
-    }
 }

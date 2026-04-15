@@ -42,7 +42,7 @@ public class JournalEntryLine {
 
     @NotNull
     @Column(name = "is_debit", nullable = false)
-    private boolean isDebit;
+    private boolean debit;
 
     @Column(name = "reference")
     private String reference;

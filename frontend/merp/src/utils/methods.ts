@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import type { JwtPayload } from "../types/Auth";
+import type { JwtPayload } from "../types/access/Auth";
 import axios from "axios";
 
 // Methods that return values contained in the token
@@ -28,6 +28,11 @@ const getDecodedToken = (): JwtPayload | null => {
 export const getCurrentUsername = (): string | null => {
   const decoded = getDecodedToken();
   return decoded?.sub || null;
+};
+
+export const getCurrentId = (): number | null => {
+  const decoded = getDecodedToken();
+  return decoded?.id || null;
 };
 
 export const getCurrentProfile = (): string | null => {
