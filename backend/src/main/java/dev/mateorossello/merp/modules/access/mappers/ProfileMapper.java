@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 public interface ProfileMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tasks", ignore = true)
+    @Mapping(target = "permissionsVersion", ignore = true)
     Profile toEntity(ProfileInput profileInput);
     
     ProfileOutput toOutput(Profile profile);

@@ -53,9 +53,4 @@ public class JournalEntry {
         journalEntryLine.setJournalEntry(this);
         this.journalEntryLines.add(journalEntryLine);
     }
-
-    public void removeJournalEntryLine(JournalEntryLine journalEntryLine) {
-        journalEntryLine.setJournalEntry(null);
-        this.journalEntryLines.remove(journalEntryLine);
-    }
 }
