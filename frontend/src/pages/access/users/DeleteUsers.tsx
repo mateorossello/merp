@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { User } from "../../types/access/User";
-import api from "../../utils/api";
-import { getCurrentUsername, extractFirstError } from "../../utils/methods";
+import type { User } from "../../../types/access/User";
+import api from "../../../utils/api";
+import { getCurrentUsername, extractFirstError } from "../../../utils/methods";
 
 function DeleteUsers() {
   const navigate = useNavigate();

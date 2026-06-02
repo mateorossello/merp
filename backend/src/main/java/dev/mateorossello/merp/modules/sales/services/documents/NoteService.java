@@ -252,5 +252,5 @@ public class NoteService {
         return noteMapper.toOutputList(noteRepository.findAllByNoteType(noteType));
     }
 
-    // TODO: Generar asientos a partir de las notas.
+    // TODO: Generar asientos contables a partir de las notas.
 }

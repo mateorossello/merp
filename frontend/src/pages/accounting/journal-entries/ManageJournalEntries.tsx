@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import type { AccountOutput } from "../../types/accounting/AccountOutput";
-import type { JournalEntryInput } from "../../types/accounting/JournalEntryInput";
-import api from "../../utils/api";
-import { extractFirstError } from "../../utils/methods";
+import type { AccountOutput } from "../../../types/accounting/AccountOutput";
+import type { JournalEntryInput } from "../../../types/accounting/JournalEntryInput";
+import api from "../../../utils/api";
+import { extractFirstError } from "../../../utils/methods";
 
 function ManageJournalEntries() {
   const today = new Date();

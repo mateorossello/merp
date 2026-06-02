@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ACCOUNT_TYPES } from "../../types/accounting/AccountOutput";
-import type { AccountOutput } from "../../types/accounting/AccountOutput";
-import type { AccountInput } from "../../types/accounting/AccountInput";
-import api from "../../utils/api";
-import { extractFirstError } from "../../utils/methods";
+import { ACCOUNT_TYPES } from "../../../types/accounting/AccountOutput";
+import type { AccountOutput } from "../../../types/accounting/AccountOutput";
+import type { AccountInput } from "../../../types/accounting/AccountInput";
+import api from "../../../utils/api";
+import { extractFirstError } from "../../../utils/methods";
 
 function CreateAccounts() {
   const navigate = useNavigate();

@@ -13,14 +13,6 @@ public record ItemInput(
     Boolean available,
 
     @NotNull
-    @PositiveOrZero(message = "Unit price must be greater than or equal to 0")
-    BigDecimal unitPrice,
-
-    @NotNull
-    @PositiveOrZero(message = "Current stock must be greater than or equal to 0")
-    BigDecimal currentStock,
-
-    @NotNull
     @PositiveOrZero(message = "Minimum stock must be greater than or equal to 0")
     BigDecimal minimumStock,
 

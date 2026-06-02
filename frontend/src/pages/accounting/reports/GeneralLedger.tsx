@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { AccountOutput } from "../../types/accounting/AccountOutput";
-import type { GeneralLedgerOutput } from "../../types/accounting/GeneralLedgerOutput";
-import api from "../../utils/api";
-import { extractFirstError } from "../../utils/methods";
+import type { AccountOutput } from "../../../types/accounting/AccountOutput";
+import type { GeneralLedgerOutput } from "../../../types/accounting/GeneralLedgerOutput";
+import api from "../../../utils/api";
+import { extractFirstError } from "../../../utils/methods";
 
 interface ExtendedGeneralLedger extends GeneralLedgerOutput {
   accountCode: string;

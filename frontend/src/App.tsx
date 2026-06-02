@@ -16,22 +16,27 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import MainMenu from "./pages/MainMenu";
 
-import ManageUsers from "./pages/users/ManageUsers";
-import CreateUsers from "./pages/users/CreateUsers";
-import DeleteUsers from "./pages/users/DeleteUsers";
+// Access Module
+import ManageUsers from "./pages/access/users/ManageUsers";
+import CreateUsers from "./pages/access/users/CreateUsers";
+import DeleteUsers from "./pages/access/users/DeleteUsers";
 
-import ManageProfiles from "./pages/profiles/ManageProfiles";
+import ManageProfiles from "./pages/access/profiles/ManageProfiles";
 
-import ManageAccounts from "./pages/accounts/ManageAccounts";
-import ShowAccounts from "./pages/accounts/ShowAccounts";
-import CreateAccounts from "./pages/accounts/CreateAccounts";
-import EditAccounts from "./pages/accounts/EditAccounts";
-import DeleteAccounts from "./pages/accounts/DeleteAccounts";
+// Accounting Module
+import ManageAccounts from "./pages/accounting/accounts/ManageAccounts";
+import ShowAccounts from "./pages/accounting/accounts/ShowAccounts";
+import CreateAccounts from "./pages/accounting/accounts/CreateAccounts";
+import EditAccounts from "./pages/accounting/accounts/EditAccounts";
+import DeleteAccounts from "./pages/accounting/accounts/DeleteAccounts";
 
-import ManageJournalEntries from "./pages/journal-entries/ManageJournalEntries";
+import ManageJournalEntries from "./pages/accounting/journal-entries/ManageJournalEntries";
 
-import GeneralJournal from "./pages/reports/GeneralJournal";
-import GeneralLedger from "./pages/reports/GeneralLedger";
+import GeneralJournal from "./pages/accounting/reports/GeneralJournal";
+import GeneralLedger from "./pages/accounting/reports/GeneralLedger";
+
+// Sales Module
+import SalesMainMenu from "./pages/sales/SalesMainMenu";
 
 function App() {
   return (
@@ -47,6 +52,8 @@ function App() {
           <Route element={<MainLayout />}>
             {/* Main Menu */}
             <Route path="/main-menu" element={<MainMenu />} />
+
+            {/* --- ACCESS AND ACCOUNTING MODULE ROUTES --- */}
 
             {/* Users */}
             <Route
@@ -100,6 +107,11 @@ function App() {
                 <Route path="general-ledger" element={<GeneralLedger />} />
               </Route>
             </Route>
+
+            {/* --- SALES MODULE ROUTES --- */}
+
+            {/* Sales Menu */}
+            <Route path="/sales-menu" element={<SalesMainMenu />} />
           </Route>
         </Route>
 

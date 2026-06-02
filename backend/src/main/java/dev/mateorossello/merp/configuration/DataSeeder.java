@@ -28,6 +28,8 @@ public class DataSeeder implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // TODO: Limpiar generación de datos automáticos para producción.
+
     @Override
     @Transactional
     public void run(String... args) throws Exception {

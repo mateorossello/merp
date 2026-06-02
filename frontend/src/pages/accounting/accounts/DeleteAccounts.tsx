@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { AccountOutput } from "../../types/accounting/AccountOutput";
-import api from "../../utils/api";
-import { extractFirstError } from "../../utils/methods";
+import type { AccountOutput } from "../../../types/accounting/AccountOutput";
+import api from "../../../utils/api";
+import { extractFirstError } from "../../../utils/methods";
 
 function DeleteAccounts() {
   const navigate = useNavigate();

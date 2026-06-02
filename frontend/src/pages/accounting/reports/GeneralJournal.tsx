@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { GeneralJournalOutput } from "../../types/accounting/GeneralJournalOutput";
-import api from "../../utils/api";
-import { extractFirstError } from "../../utils/methods";
+import type { GeneralJournalOutput } from "../../../types/accounting/GeneralJournalOutput";
+import api from "../../../utils/api";
+import { extractFirstError } from "../../../utils/methods";
 
 interface FlattenedJournalLine {
   lineId: number;

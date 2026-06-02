@@ -177,5 +177,5 @@ public class InvoiceService {
         return invoiceMapper.toOutputList(invoiceRepository.findAllByDueDate(dueDate));
     }
 
-    // TODO: Generar asientos a partir de las facturas.
+    // TODO: Generar asientos contables a partir de las facturas.
 }

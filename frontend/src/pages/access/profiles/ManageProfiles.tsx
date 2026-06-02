@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Profile } from "../../types/access/Profile";
-import type { Task } from "../../types/access/Task";
-import api from "../../utils/api";
-import { getCurrentProfile, extractFirstError } from "../../utils/methods";
+import type { Profile } from "../../../types/access/Profile";
+import type { Task } from "../../../types/access/Task";
+import api from "../../../utils/api";
+import { getCurrentProfile, extractFirstError } from "../../../utils/methods";
 
 function ManageProfiles() {
   const navigate = useNavigate();

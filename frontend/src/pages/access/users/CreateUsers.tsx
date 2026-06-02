@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Profile } from "../../types/access/Profile";
-import api from "../../utils/api";
-import { extractFirstError } from "../../utils/methods";
+import type { Profile } from "../../../types/access/Profile";
+import api from "../../../utils/api";
+import { extractFirstError } from "../../../utils/methods";
 
 function CreateUsers() {
   const navigate = useNavigate();

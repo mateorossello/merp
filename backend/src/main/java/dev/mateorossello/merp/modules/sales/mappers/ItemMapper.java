@@ -11,6 +11,8 @@ import org.mapstruct.Mapping;
 public interface ItemMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "code", ignore = true)
+    @Mapping(target = "unitPrice", ignore = true)
+    @Mapping(target = "currentStock", ignore = true)
     Item toEntity(ItemInput itemInput);
 
     ItemOutput toOutput(Item item);
