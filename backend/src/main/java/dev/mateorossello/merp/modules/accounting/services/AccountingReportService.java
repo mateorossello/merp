@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for generating accounting reports. Provides methods for creating the general journal and the general ledger.
+ */
+
 @Service
 public class AccountingReportService {
     private final AccountService accountService;

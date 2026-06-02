@@ -8,3 +8,13 @@
   --radius-xl: 12px;
   --radius-2xl: 16px;
 }
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
+}
