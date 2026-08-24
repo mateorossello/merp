@@ -151,10 +151,12 @@ public class NoteService {
         BigDecimal totalItems = BigDecimal.ZERO;
         BigDecimal totalIva = BigDecimal.ZERO;
 
+        // Variable para generar el asiento contable de la nota. Requiere continuar con la integración entre el módulo contable y el módulo de ventas.
         BigDecimal totalAdjustments = note.getNoteAdjustments() != null ? note.getNoteAdjustments().stream()
             .map(NoteAdjustment::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
             
+        // Variable para generar el asiento contable de la nota. Requiere continuar con la integración entre el módulo contable y el módulo de ventas.
         BigDecimal totalCost = BigDecimal.ZERO;
 
         if (note.getNoteItems() != null && !note.getNoteItems().isEmpty()) {
@@ -253,4 +255,5 @@ public class NoteService {
     }
 
     // TODO: Generar asientos contables a partir de las notas.
+    // Requiere continuar con la integración entre el módulo contable y el módulo de ventas.
 }

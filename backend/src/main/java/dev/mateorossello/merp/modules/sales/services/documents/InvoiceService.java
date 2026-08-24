@@ -178,4 +178,5 @@ public class InvoiceService {
     }
 
     // TODO: Generar asientos contables a partir de las facturas.
+    // Requiere continuar con la integración entre el módulo contable y el módulo de ventas.
 }

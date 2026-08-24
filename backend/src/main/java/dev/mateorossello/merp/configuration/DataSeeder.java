@@ -29,6 +29,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     // TODO: Limpiar generación de datos automáticos para producción.
+    // Se generaron datos de prueba para facilitar el desarrollo, pero deben eliminarse antes de pasar a producción.
 
     @Override
     @Transactional
