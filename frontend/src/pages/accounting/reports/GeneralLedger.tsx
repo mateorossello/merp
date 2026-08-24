@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import type { RowInput } from "jspdf-autotable";
 import type { AccountOutput } from "../../../types/accounting/AccountOutput";
 import type { GeneralLedgerOutput } from "../../../types/accounting/GeneralLedgerOutput";
 import api from "../../../utils/api";
@@ -211,7 +212,7 @@ function GeneralLedger() {
         currentY,
       );
 
-      const tableBody: any[] = [];
+      const tableBody: RowInput[] = [];
 
       tableBody.push([
         "-",
