@@ -1,6 +1,6 @@
 # MERP
 
-Project: Refactored Enterprise Resource Planning from a University Project
+Project - Refactored Enterprise Resource Planning from a University Project
 
 ---
 
