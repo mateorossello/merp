@@ -1,6 +1,5 @@
 package dev.mateorossello.merp.modules.sales.controllers.documents;
 
-import dev.mateorossello.merp.configuration.CustomUser;
 import dev.mateorossello.merp.modules.sales.dtos.documents.DeliveryNoteInput;
 import dev.mateorossello.merp.modules.sales.dtos.documents.DeliveryNoteOutput;
 import dev.mateorossello.merp.modules.sales.services.documents.DeliveryNoteService;
@@ -11,7 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,8 +35,8 @@ public class DeliveryNoteController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGE_DELIVERY_NOTES')")
-    public ResponseEntity<DeliveryNoteOutput> createDeliveryNote(@AuthenticationPrincipal CustomUser user, @Valid @RequestBody DeliveryNoteInput deliveryNoteInput) {
-        return ResponseEntity.ok(deliveryNoteService.createDeliveryNote(user.getId(), deliveryNoteInput));
+    public ResponseEntity<DeliveryNoteOutput> createDeliveryNote(@Valid @RequestBody DeliveryNoteInput deliveryNoteInput) {
+        return ResponseEntity.ok(deliveryNoteService.createDeliveryNote(deliveryNoteInput));
     }
 
     //

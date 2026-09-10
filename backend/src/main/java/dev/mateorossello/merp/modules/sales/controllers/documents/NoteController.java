@@ -1,6 +1,5 @@
 package dev.mateorossello.merp.modules.sales.controllers.documents;
 
-import dev.mateorossello.merp.configuration.CustomUser;
 import dev.mateorossello.merp.modules.sales.dtos.documents.NoteInput;
 import dev.mateorossello.merp.modules.sales.dtos.documents.NoteOutput;
 import dev.mateorossello.merp.modules.sales.models.documents.NoteType;
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,8 +34,8 @@ public class NoteController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGE_NOTES')")
-    public ResponseEntity<NoteOutput> createNote(@AuthenticationPrincipal CustomUser user, @Valid @RequestBody NoteInput noteInput) {
-        return ResponseEntity.ok(noteService.createNote(user.getId(), noteInput));
+    public ResponseEntity<NoteOutput> createNote(@Valid @RequestBody NoteInput noteInput) {
+        return ResponseEntity.ok(noteService.createNote(noteInput));
     }
 
     //

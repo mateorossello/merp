@@ -52,7 +52,7 @@ public class TransactionService {
     //
 
     @Transactional
-    public TransactionOutput createTransaction(Long userId, TransactionInput transactionInput) {
+    public TransactionOutput createTransaction(TransactionInput transactionInput) {
         Customer customer = customerService.getCustomerById(transactionInput.customerId());
         Transaction transaction = new Transaction();
         transaction.setIssueDate(LocalDate.now());
@@ -138,7 +138,6 @@ public class TransactionService {
             throw new ResourceConflictException("Cannot create transaction. Total items amount does not match total payment amount.");
         }
 
-        transaction.setCreatedByUserId(userId);
         transaction.setCustomer(customer);
         transaction.setReceiptNumber(transactionRepository.findMaxReceiptNumber() + 1);
 

@@ -1,6 +1,5 @@
 package dev.mateorossello.merp.modules.sales.controllers;
 
-import dev.mateorossello.merp.configuration.CustomUser;
 import dev.mateorossello.merp.modules.sales.dtos.TransactionInput;
 import dev.mateorossello.merp.modules.sales.dtos.TransactionOutput;
 import dev.mateorossello.merp.modules.sales.services.TransactionService;
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,8 +36,8 @@ public class TransactionController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGE_TRANSACTIONS')")
-    public ResponseEntity<TransactionOutput> createTransaction(@AuthenticationPrincipal CustomUser user, @Valid @RequestBody TransactionInput transactionInput) {
-        return ResponseEntity.ok(transactionService.createTransaction(user.getId(), transactionInput));
+    public ResponseEntity<TransactionOutput> createTransaction(@Valid @RequestBody TransactionInput transactionInput) {
+        return ResponseEntity.ok(transactionService.createTransaction(transactionInput));
     }
 
     //

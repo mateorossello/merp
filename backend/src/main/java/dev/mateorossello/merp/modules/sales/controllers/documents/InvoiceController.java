@@ -1,6 +1,5 @@
 package dev.mateorossello.merp.modules.sales.controllers.documents;
 
-import dev.mateorossello.merp.configuration.CustomUser;
 import dev.mateorossello.merp.modules.sales.dtos.documents.InvoiceInput;
 import dev.mateorossello.merp.modules.sales.dtos.documents.InvoiceOutput;
 import dev.mateorossello.merp.modules.sales.services.documents.InvoiceService;
@@ -11,7 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,8 +33,8 @@ public class InvoiceController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGE_INVOICES')")
-    public ResponseEntity<InvoiceOutput> createInvoice(@AuthenticationPrincipal CustomUser user, @Valid @RequestBody InvoiceInput invoiceInput) {
-        return ResponseEntity.ok(invoiceService.createInvoice(user.getId(), invoiceInput));
+    public ResponseEntity<InvoiceOutput> createInvoice(@Valid @RequestBody InvoiceInput invoiceInput) {
+        return ResponseEntity.ok(invoiceService.createInvoice(invoiceInput));
     }
 
     //

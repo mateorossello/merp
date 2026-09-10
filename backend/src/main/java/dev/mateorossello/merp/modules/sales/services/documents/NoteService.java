@@ -40,7 +40,7 @@ public class NoteService {
     //
 
     @Transactional
-    public NoteOutput createNote(Long userId, NoteInput noteInput) {
+    public NoteOutput createNote(NoteInput noteInput) {
         if (noteInput.noteItemsInput() != null) {
             for (NoteItemInput noteItemInput : noteInput.noteItemsInput()) {
                 if ((noteItemInput.itemId() == null || noteItemInput.itemId() == 0) && noteItemInput.quantity().equals(BigDecimal.ZERO)) {
@@ -85,7 +85,6 @@ public class NoteService {
         }
 
         note.setInvoice(invoice);
-        note.setCreatedByUserId(userId);
         note.setNumber(noteRepository.findMaxNumber() + 1);
 
         if (noteInput.noteItemsInput() != null) {
@@ -201,7 +200,7 @@ public class NoteService {
             }
         }
 
-        // generateNoteJournalEntry(userId, note, note.getNoteType(), 
+        // generateNoteJournalEntry(note, note.getNoteType(), 
         // note.getNoteItems() != null && !note.getNoteItems().isEmpty(), 
         // note.getNoteAdjustments() != null && !note.getNoteAdjustments().isEmpty(), 
         // totalItems, totalIva, totalAdjustments, totalCost);

@@ -44,7 +44,7 @@ public class DeliveryNoteService {
     //
 
     @Transactional
-    public DeliveryNoteOutput createDeliveryNote(Long userId, DeliveryNoteInput deliveryNoteInput) {
+    public DeliveryNoteOutput createDeliveryNote(DeliveryNoteInput deliveryNoteInput) {
         DeliveryNote deliveryNote = deliveryNoteMapper.toEntity(deliveryNoteInput);
         Transaction transaction = transactionService.getTransactionById(deliveryNoteInput.transactionId());
         
@@ -99,7 +99,6 @@ public class DeliveryNoteService {
 
         deliveryNote.setNumber(deliveryNoteRepository.findMaxNumber() + 1);
         deliveryNote.setTransaction(transaction);
-        deliveryNote.setCreatedByUserId(userId);
 
         List<Long> itemIds = deliveryNoteInput.deliveryNoteItemsInput().stream().map(DeliveryNoteItemInput::itemId).toList();
         Map<Long, Item> itemMap = itemService.getItemsByIds(itemIds).stream().collect(Collectors.toMap(Item::getId, item -> item));

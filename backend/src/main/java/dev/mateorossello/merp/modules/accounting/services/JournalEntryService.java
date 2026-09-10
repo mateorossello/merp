@@ -82,7 +82,7 @@ public class JournalEntryService {
     // Create methods
 
     @Transactional
-    public JournalEntryOutput createJournalEntry(JournalEntryInput newJournalEntry, Long userId) {
+    public JournalEntryOutput createJournalEntry(JournalEntryInput newJournalEntry) {
         validateEntryDate(newJournalEntry.entryDate());
         validateBalanceAndUniqueAccounts(newJournalEntry.journalEntryLinesInput());
 
@@ -94,7 +94,6 @@ public class JournalEntryService {
         }
 
         JournalEntry journalEntry = journalEntryMapper.toEntity(newJournalEntry);
-        journalEntry.setCreatedByUserId(userId);
 
         for (int i = 0; i < newJournalEntry.journalEntryLinesInput().size(); i++) {
             JournalEntryLineInput lineInput = newJournalEntry.journalEntryLinesInput().get(i);

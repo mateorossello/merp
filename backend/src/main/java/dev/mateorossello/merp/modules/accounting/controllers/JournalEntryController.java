@@ -1,6 +1,5 @@
 package dev.mateorossello.merp.modules.accounting.controllers;
 
-import dev.mateorossello.merp.configuration.CustomUser;
 import dev.mateorossello.merp.modules.accounting.dtos.JournalEntryInput;
 import dev.mateorossello.merp.modules.accounting.dtos.JournalEntryOutput;
 import dev.mateorossello.merp.modules.accounting.services.JournalEntryService;
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,8 +27,8 @@ public class JournalEntryController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGE_JOURNAL_ENTRIES')")
-    public ResponseEntity<JournalEntryOutput> createJournalEntry(@Valid @RequestBody JournalEntryInput newJournalEntry, @AuthenticationPrincipal CustomUser user) {
-        return ResponseEntity.ok(journalEntryService.createJournalEntry(newJournalEntry, user.getId()));
+    public ResponseEntity<JournalEntryOutput> createJournalEntry(@Valid @RequestBody JournalEntryInput newJournalEntry) {
+        return ResponseEntity.ok(journalEntryService.createJournalEntry(newJournalEntry));
     }
 
     //

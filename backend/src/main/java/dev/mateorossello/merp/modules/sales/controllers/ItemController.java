@@ -1,6 +1,5 @@
 package dev.mateorossello.merp.modules.sales.controllers;
 
-import dev.mateorossello.merp.configuration.CustomUser;
 import dev.mateorossello.merp.modules.sales.dtos.ItemInput;
 import dev.mateorossello.merp.modules.sales.dtos.ItemOutput;
 import dev.mateorossello.merp.modules.sales.dtos.ItemPurchaseInput;
@@ -10,7 +9,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,8 +61,8 @@ public class ItemController {
 
     @PostMapping("/purchases")
     @PreAuthorize("hasAuthority('MANAGE_ITEMS')")
-    public ResponseEntity<Void> registerPurchases(@Valid @RequestBody List<ItemPurchaseInput> itemPurchases, @AuthenticationPrincipal CustomUser user) {
-        itemService.registerPurchases(user.getId(), itemPurchases);
+    public ResponseEntity<Void> registerPurchases(@Valid @RequestBody List<ItemPurchaseInput> itemPurchases) {
+        itemService.registerPurchases(itemPurchases);
         return ResponseEntity.ok().build();
     }
 

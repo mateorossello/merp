@@ -115,7 +115,7 @@ public class ItemService {
     }
 
     @Transactional
-    public void registerPurchases(Long userId, List<ItemPurchaseInput> itemPurchaseInputs) {
+    public void registerPurchases(List<ItemPurchaseInput> itemPurchaseInputs) {
         List<Item> items = new ArrayList<>();
         BigDecimal totalIvaAmount = BigDecimal.ZERO;
 
@@ -153,7 +153,7 @@ public class ItemService {
             .map(purchase -> purchase.purchaseUnitPrice().multiply(purchase.quantity()))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // generatePurchaseJournalEntry(userId, totalAmount, totalIvaAmount);
+        // generatePurchaseJournalEntry(totalAmount, totalIvaAmount);
 
         itemRepository.saveAll(items);
     }

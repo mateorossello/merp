@@ -8,13 +8,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * Entity representing a journal entry in the accounting system.
  */
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -33,7 +36,7 @@ public class JournalEntry {
     @Column(name = "entry_date", nullable = false)
     private LocalDate entryDate;
 
-    @CreationTimestamp
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -41,8 +44,8 @@ public class JournalEntry {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @NotNull
-    @Column(name = "created_by_user_id", nullable = false)
+    @CreatedBy
+    @Column(name = "created_by_user_id", nullable = false, updatable = false)
     private Long createdByUserId;
 
     @Builder.Default

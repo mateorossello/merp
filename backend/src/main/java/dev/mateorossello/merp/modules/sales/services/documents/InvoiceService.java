@@ -47,7 +47,7 @@ public class InvoiceService {
     //
 
     @Transactional
-    public InvoiceOutput createInvoice(Long userId, InvoiceInput invoiceInput) {
+    public InvoiceOutput createInvoice(InvoiceInput invoiceInput) {
         Invoice invoice = invoiceMapper.toEntity(invoiceInput);
         Transaction transaction = transactionService.getTransactionById(invoiceInput.transactionId());
 
@@ -98,7 +98,6 @@ public class InvoiceService {
 
         invoice.setNumber(invoiceRepository.findMaxNumber() + 1);
         invoice.setTransaction(transaction);
-        invoice.setCreatedByUserId(userId);
 
         Customer customer = transaction.getCustomer();
 

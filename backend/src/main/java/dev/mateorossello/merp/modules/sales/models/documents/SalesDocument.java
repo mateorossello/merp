@@ -6,12 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * Entity representing a sales document in the sales system.
  */
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -39,7 +42,7 @@ public abstract class SalesDocument {
     @JoinColumn(name = "transaction_id", nullable = true)
     private Transaction transaction;
 
-    @NotNull(message = "Created by user ID is required.")
-    @Column(name = "created_by_user_id", nullable = false)
+    @CreatedBy
+    @Column(name = "created_by_user_id", nullable = false, updatable = false)
     private Long createdByUserId;
 }

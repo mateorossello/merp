@@ -8,12 +8,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * Entity representing a sales transaction in the sales system.
  */
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -37,8 +40,8 @@ public class Transaction {
     @Column(name = "issue_date", nullable = false)
     private LocalDate issueDate;
 
-    @NotNull
-    @Column(name = "created_by_user_id", nullable = false)
+    @CreatedBy
+    @Column(name = "created_by_user_id", nullable = false, updatable = false)
     private Long createdByUserId;
 
     @NotNull
