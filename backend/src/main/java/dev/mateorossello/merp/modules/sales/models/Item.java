@@ -28,12 +28,12 @@ public class Item {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @NotBlank(message = "Code cannot be blank")
+    @NotBlank(message = "Code cannot be blank.")
     @Column(name = "code", unique = true, nullable = false)
     @EqualsAndHashCode.Include
     private String code;
 
-    @NotBlank(message = "Name cannot be blank")
+    @NotBlank(message = "Name cannot be blank.")
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -45,26 +45,26 @@ public class Item {
     private boolean available = true;
 
     @NotNull
-    @PositiveOrZero(message = "Unit price must be greater than or equal to 0")
+    @PositiveOrZero(message = "Unit price must be greater than or equal to 0.")
     @Builder.Default
     @Column(name = "unit_price", precision = 10, scale = 2, nullable = false)
     private BigDecimal unitPrice = BigDecimal.ZERO;
 
     @NotNull
-    @PositiveOrZero(message = "Current stock must be greater than or equal to 0")
+    @PositiveOrZero(message = "Current stock must be greater than or equal to 0.")
     @Builder.Default
     @Column(name = "current_stock", precision = 10, scale = 2, nullable = false)
     private BigDecimal currentStock = BigDecimal.ZERO;
 
     @NotNull
-    @PositiveOrZero(message = "Minimum stock must be greater than or equal to 0")
+    @PositiveOrZero(message = "Minimum stock must be greater than or equal to 0.")
     @Builder.Default
     @Column(name = "minimum_stock", precision = 10, scale = 2, nullable = false)
     private BigDecimal minimumStock = BigDecimal.ZERO;
 
     @NotNull
-    @DecimalMin(value = "0.0", message = "IVA must be greater than or equal to 0")
-    @DecimalMax(value = "100.0", message = "IVA must be less than or equal to 100")
+    @DecimalMin(value = "0.0", message = "IVA must be greater than or equal to 0.")
+    @DecimalMax(value = "100.0", message = "IVA must be less than or equal to 100.")
     @Builder.Default
     @Column(name = "iva", nullable = false)
     private BigDecimal iva = BigDecimal.ZERO;

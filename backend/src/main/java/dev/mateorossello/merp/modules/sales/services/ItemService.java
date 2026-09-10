@@ -1,10 +1,7 @@
 package dev.mateorossello.merp.modules.sales.services;
 
+import dev.mateorossello.merp.exceptions.ResourceConflictException;
 import dev.mateorossello.merp.exceptions.ResourceNotFoundException;
-import dev.mateorossello.merp.modules.accounting.dtos.JournalEntryInput;
-import dev.mateorossello.merp.modules.accounting.dtos.JournalEntryLineInput;
-import dev.mateorossello.merp.modules.accounting.services.AccountService;
-import dev.mateorossello.merp.modules.accounting.services.JournalEntryService;
 import dev.mateorossello.merp.modules.sales.dtos.ItemInput;
 import dev.mateorossello.merp.modules.sales.dtos.ItemOutput;
 import dev.mateorossello.merp.modules.sales.dtos.ItemPurchaseInput;
@@ -13,10 +10,11 @@ import dev.mateorossello.merp.modules.sales.models.Item;
 import dev.mateorossello.merp.modules.sales.repositories.ItemRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
-    private final AccountService accountService;
-    private final JournalEntryService journalEntryService;
     private final TransactionItemService transactionItemService;
 
     // Utility methods
@@ -42,7 +38,7 @@ public class ItemService {
         String numbers = "0123456789";
         
         StringBuilder code = new StringBuilder();
-        Random random = new Random();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
 
         for (int i = 0; i < 3; i++) {
             code.append(characters.charAt(random.nextInt(characters.length())));
@@ -55,38 +51,6 @@ public class ItemService {
         return code.toString();
     }
 
-    private void generatePurchaseJournalEntry(Long userId, BigDecimal totalAmount, BigDecimal totalIvaAmount) {
-        BigDecimal total = totalAmount.setScale(2, RoundingMode.HALF_UP);
-        BigDecimal iva = totalIvaAmount.setScale(2, RoundingMode.HALF_UP);
-
-        List<JournalEntryLineInput> lines = new ArrayList<>();
-
-        lines.add(buildLine("Mercaderías", total, true));
-        
-        if (iva.compareTo(BigDecimal.ZERO) > 0) {
-            lines.add(buildLine("IVA crédito fiscal", iva, true));
-        }
-
-        lines.add(buildLine("Proveedores", total.add(iva), false));
-
-        JournalEntryInput entry = new JournalEntryInput(
-            LocalDate.now(),
-            "Compra de mercaderías",
-            lines
-        );
-
-        journalEntryService.createJournalEntry(entry, userId);
-    }
-
-    private JournalEntryLineInput buildLine(String accountName, BigDecimal amount, boolean debit) {
-        return new JournalEntryLineInput(
-            accountService.getAccountByName(accountName).getId(),
-            amount,
-            debit,
-            null
-        );
-    }
-
     //
     // Create methods
     //
@@ -96,7 +60,15 @@ public class ItemService {
         Item item = itemMapper.toEntity(itemInput);
 
         String code = generateRandomCode();
+        
+        int maximumAttempts = 100;
+        int attempt = 0;
+        
         while (itemRepository.existsByCode(code)) {
+            if (++attempt >= maximumAttempts) {
+                throw new ResourceConflictException("Unable to generate a unique item code after " + maximumAttempts + " attempts.");
+            }
+
             code = generateRandomCode();
         }
 
@@ -147,8 +119,15 @@ public class ItemService {
         List<Item> items = new ArrayList<>();
         BigDecimal totalIvaAmount = BigDecimal.ZERO;
 
+        List<Long> itemIds = itemPurchaseInputs.stream().map(ItemPurchaseInput::itemId).toList();
+        Map<Long, Item> itemMap = getItemsByIds(itemIds).stream().collect(Collectors.toMap(Item::getId, item -> item));
+
+        if (itemMap.size() != itemIds.size()) {
+            throw new ResourceNotFoundException("One or more items not found.");
+        }
+
         for (ItemPurchaseInput itemPurchaseInput : itemPurchaseInputs) {
-            Item item = getItemById(itemPurchaseInput.itemId());
+            Item item = itemMap.get(itemPurchaseInput.itemId());
 
             BigDecimal currentStock = item.getCurrentStock();
             BigDecimal purchaseQuantity = itemPurchaseInput.quantity();
@@ -174,7 +153,7 @@ public class ItemService {
             .map(purchase -> purchase.purchaseUnitPrice().multiply(purchase.quantity()))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        generatePurchaseJournalEntry(userId, totalAmount, totalIvaAmount);
+        // generatePurchaseJournalEntry(userId, totalAmount, totalIvaAmount);
 
         itemRepository.saveAll(items);
     }
@@ -190,6 +169,10 @@ public class ItemService {
 
     public ItemOutput getItemDtoById(long id) {
         return itemMapper.toOutput(getItemById(id));
+    }
+
+    public List<Item> getItemsByIds(List<Long> ids) {
+        return itemRepository.findAllById(ids);
     }
 
     public List<ItemOutput> getAllItems() {
@@ -209,4 +192,6 @@ public class ItemService {
     public List<ItemOutput> getItemsBelowMinimumStock() {
         return itemMapper.toOutputList(itemRepository.findAllByCurrentStockLessThanMinimumStock());
     }
+
+    // TODO: Generar asientos contables a partir de la compra de artículos.
 }

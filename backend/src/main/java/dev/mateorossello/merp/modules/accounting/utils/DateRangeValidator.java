@@ -11,13 +11,13 @@ public final class DateRangeValidator {
 
     public static void validate(LocalDate startDate, LocalDate endDate) {
         if (startDate.isAfter(endDate)) {
-            throw new ResourceConflictException("Start date cannot be after end date");
+            throw new ResourceConflictException("Start date cannot be after end date.");
         }
     }
 
     public static void validate(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate.isAfter(endDate)) {
-            throw new ResourceConflictException("Start date cannot be after end date");
+            throw new ResourceConflictException("Start date cannot be after end date.");
         }
     }
 }

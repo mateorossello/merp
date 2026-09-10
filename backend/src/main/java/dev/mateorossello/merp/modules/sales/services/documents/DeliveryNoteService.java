@@ -10,13 +10,18 @@ import dev.mateorossello.merp.modules.sales.models.documents.DeliveryNote;
 import dev.mateorossello.merp.modules.sales.models.documents.DeliveryNoteItem;
 import dev.mateorossello.merp.modules.sales.models.documents.DeliveryNoteType;
 import dev.mateorossello.merp.modules.sales.models.documents.Invoice;
+import dev.mateorossello.merp.modules.sales.models.Item;
 import dev.mateorossello.merp.modules.sales.models.Transaction;
 import dev.mateorossello.merp.modules.sales.repositories.documents.DeliveryNoteRepository;
 import dev.mateorossello.merp.modules.sales.repositories.documents.InvoiceRepository;
+import dev.mateorossello.merp.modules.sales.services.ItemService;
 import dev.mateorossello.merp.modules.sales.services.TransactionService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeliveryNoteService {
     private final DeliveryNoteRepository deliveryNoteRepository;
     private final DeliveryNoteMapper deliveryNoteMapper;
+    private final ItemService itemService;
     private final TransactionService transactionService;
     private final InvoiceRepository invoiceRepository;
 
@@ -64,27 +70,29 @@ public class DeliveryNoteService {
             }
         }
 
-        for (DeliveryNoteItemInput deliveryNoteItemInput : deliveryNoteInput.deliveryNoteItemsInput()) {
-            Long itemId = deliveryNoteItemInput.itemId();
-            BigDecimal totalQuantity = deliveryNoteItemInput.quantity();
-
-            if (deliveryNotes != null) {
-                for (DeliveryNote previousDeliveryNote : deliveryNotes) {
-                    if (!previousDeliveryNote.isCancelled() && previousDeliveryNote.getDeliveryNoteItems() != null) {
-                        totalQuantity = totalQuantity.add(previousDeliveryNote.getDeliveryNoteItems().stream()
-                            .filter(deliveryNoteItem -> deliveryNoteItem.getItemId().equals(itemId))
-                            .map(deliveryNoteItem -> deliveryNoteItem.getQuantity())
-                            .reduce(BigDecimal.ZERO, BigDecimal::add));
+        Map<Long, BigDecimal> previouslySentQuantities = new HashMap<>();
+        if (deliveryNotes != null) {
+            for (DeliveryNote previousDeliveryNote : deliveryNotes) {
+                if (!previousDeliveryNote.isCancelled() && previousDeliveryNote.getDeliveryNoteItems() != null) {
+                    for (DeliveryNoteItem deliveryNoteItem : previousDeliveryNote.getDeliveryNoteItems()) {
+                        previouslySentQuantities.merge(deliveryNoteItem.getItem().getId(), deliveryNoteItem.getQuantity(), BigDecimal::add);
                     }
                 }
             }
+        }
 
-            BigDecimal transactionQuantity = transaction.getTransactionItems().stream()
-                .filter(transactionItem -> transactionItem.getItem().getId().equals(itemId))
-                .map(transactionItem -> transactionItem.getQuantity())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        Map<Long, BigDecimal> transactionQuantities = transaction.getTransactionItems().stream()
+            .collect(Collectors.toMap(item -> item.getItem().getId(), item -> item.getQuantity(), BigDecimal::add));
 
-            if (totalQuantity.compareTo(transactionQuantity) > 0) {
+        for (DeliveryNoteItemInput deliveryNoteItemInput : deliveryNoteInput.deliveryNoteItemsInput()) {
+            Long itemId = deliveryNoteItemInput.itemId();
+            BigDecimal requestedQuantity = deliveryNoteItemInput.quantity();
+            BigDecimal sentQuantity = previouslySentQuantities.getOrDefault(itemId, BigDecimal.ZERO);
+            BigDecimal total = requestedQuantity.add(sentQuantity);
+            
+            BigDecimal transactionQuantity = transactionQuantities.getOrDefault(itemId, BigDecimal.ZERO);
+
+            if (total.compareTo(transactionQuantity) > 0) {
                 throw new ResourceConflictException("Total quantity of items in delivery notes exceeds transaction items quantity.");
             }
         }
@@ -93,9 +101,16 @@ public class DeliveryNoteService {
         deliveryNote.setTransaction(transaction);
         deliveryNote.setCreatedByUserId(userId);
 
+        List<Long> itemIds = deliveryNoteInput.deliveryNoteItemsInput().stream().map(DeliveryNoteItemInput::itemId).toList();
+        Map<Long, Item> itemMap = itemService.getItemsByIds(itemIds).stream().collect(Collectors.toMap(Item::getId, item -> item));
+
+        if (itemMap.size() != itemIds.size()) {
+            throw new ResourceNotFoundException("One or more items not found.");
+        }
+
         for (DeliveryNoteItemInput itemInput : deliveryNoteInput.deliveryNoteItemsInput()) {
             DeliveryNoteItem deliveryNoteItem = new DeliveryNoteItem();
-            deliveryNoteItem.setItemId(itemInput.itemId());
+            deliveryNoteItem.setItem(itemMap.get(itemInput.itemId()));
             deliveryNoteItem.setQuantity(itemInput.quantity());
             deliveryNote.addDeliveryItem(deliveryNoteItem);
         }

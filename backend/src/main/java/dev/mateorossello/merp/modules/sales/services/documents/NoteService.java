@@ -14,6 +14,7 @@ import dev.mateorossello.merp.modules.sales.models.documents.NoteAdjustment;
 import dev.mateorossello.merp.modules.sales.models.documents.NoteItem;
 import dev.mateorossello.merp.modules.sales.models.documents.NoteType;
 import dev.mateorossello.merp.modules.sales.repositories.documents.NoteRepository;
+import dev.mateorossello.merp.modules.sales.services.ItemService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class NoteService {
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
+    private final ItemService itemService;
     private final InvoiceService invoiceService;
 
     //
@@ -82,21 +84,47 @@ public class NoteService {
             throw new ResourceConflictException("Note type must be DEBIT or CREDIT.");
         }
 
-        if ((note.getNoteItems() == null || note.getNoteItems().isEmpty()) && (note.getNoteAdjustments() == null || note.getNoteAdjustments().isEmpty())) {
-            throw new ResourceConflictException("Note must contain at least one item or adjustment");
+        note.setInvoice(invoice);
+        note.setCreatedByUserId(userId);
+        note.setNumber(noteRepository.findMaxNumber() + 1);
+
+        if (noteInput.noteItemsInput() != null) {
+            for (NoteItemInput itemInput : noteInput.noteItemsInput()) {
+                if ((itemInput.itemId() == null || itemInput.itemId() == 0) && itemInput.quantity().equals(BigDecimal.ZERO)) continue;
+                
+                NoteItem noteItem = new NoteItem();
+                noteItem.setItem(itemService.getItemById(itemInput.itemId()));
+                noteItem.setQuantity(itemInput.quantity());
+                note.addNoteItem(noteItem);
+            }
+        }
+        
+        if (noteInput.noteAdjustmentsInput() != null) {
+            for (NoteAdjustmentInput adjustmentInput : noteInput.noteAdjustmentsInput()) {
+                if ((adjustmentInput.description() == null || adjustmentInput.description().isBlank()) && (adjustmentInput.amount() == null || adjustmentInput.amount().compareTo(BigDecimal.ZERO) == 0)) continue;
+                
+                NoteAdjustment adjustment = new NoteAdjustment();
+                adjustment.setDescription(adjustmentInput.description());
+                adjustment.setAmount(adjustmentInput.amount());
+                note.addAdjustment(adjustment);
+            }
         }
 
-        if (note.getNoteItems() != null && note.getNoteItems().stream().map(NoteItem::getItemId).distinct().count() != note.getNoteItems().size()) {
+        if ((note.getNoteItems() == null || note.getNoteItems().isEmpty()) && (note.getNoteAdjustments() == null || note.getNoteAdjustments().isEmpty())) {
+            throw new ResourceConflictException("Note must contain at least one item or adjustment.");
+        }
+
+        if (note.getNoteItems() != null && note.getNoteItems().stream().map(n -> n.getItem().getId()).distinct().count() != note.getNoteItems().size()) {
             throw new ResourceConflictException("Note contains duplicate items.");
         }
 
         if (note.getNoteAdjustments() != null && note.getNoteAdjustments().stream().map(NoteAdjustment::getDescription).distinct().count() != note.getNoteAdjustments().size()) {
-            throw new ResourceConflictException("Note contains duplicate adjustments");
+            throw new ResourceConflictException("Note contains duplicate adjustments.");
         }
 
         if (note.getNoteType() == NoteType.CREDIT && note.getNoteItems() != null) {
             for (NoteItem noteItem : note.getNoteItems()) {
-                Long itemId = noteItem.getItemId();
+                Long itemId = noteItem.getItem().getId();
                 BigDecimal totalNoteQuantity = noteItem.getQuantity();
 
                 List<Note> invoiceNotes = noteRepository.findAllByInvoiceId(invoice.getId());
@@ -104,7 +132,7 @@ public class NoteService {
                     for (Note invoiceNote : invoiceNotes) {
                         if (invoiceNote.getNoteItems() != null) {
                             totalNoteQuantity = totalNoteQuantity.add(invoiceNote.getNoteItems().stream()
-                                .filter(item -> item.getItemId().equals(itemId))
+                                .filter(item -> item.getItem().getId().equals(itemId))
                                 .map(NoteItem::getQuantity)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add));
                         }
@@ -122,32 +150,6 @@ public class NoteService {
             }
         }
 
-        note.setInvoice(invoice);
-        note.setCreatedByUserId(userId);
-        note.setNumber(noteRepository.findMaxNumber() + 1);
-
-        if (noteInput.noteItemsInput() != null) {
-            for (NoteItemInput itemInput : noteInput.noteItemsInput()) {
-                if ((itemInput.itemId() == null || itemInput.itemId() == 0) && itemInput.quantity().equals(BigDecimal.ZERO)) continue;
-                
-                NoteItem noteItem = new NoteItem();
-                noteItem.setItemId(itemInput.itemId());
-                noteItem.setQuantity(itemInput.quantity());
-                note.addNoteItem(noteItem);
-            }
-        }
-        
-        if (noteInput.noteAdjustmentsInput() != null) {
-            for (NoteAdjustmentInput adjInput : noteInput.noteAdjustmentsInput()) {
-                if ((adjInput.description() == null || adjInput.description().isBlank()) && (adjInput.amount() == null || adjInput.amount().compareTo(BigDecimal.ZERO) == 0)) continue;
-                
-                NoteAdjustment adjustment = new NoteAdjustment();
-                adjustment.setDescription(adjInput.description());
-                adjustment.setAmount(adjInput.amount());
-                note.addAdjustment(adjustment);
-            }
-        }
-
         BigDecimal totalItems = BigDecimal.ZERO;
         BigDecimal totalIva = BigDecimal.ZERO;
 
@@ -161,18 +163,18 @@ public class NoteService {
             totalCost = note.getNoteItems().stream()
                 .map(item -> item.getQuantity().multiply(
                     invoice.getTransaction().getTransactionItems().stream()
-                        .filter(transactionItem -> transactionItem.getItem().getId().equals(item.getItemId()))
+                        .filter(transactionItem -> transactionItem.getItem().getId().equals(item.getItem().getId()))
                         .map(TransactionItem::getUnitCost)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add))
-                )
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                ))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             for (NoteItem noteItem : note.getNoteItems()) {
                 BigDecimal baseTotal = note.getNoteItems().stream()
-                    .filter(nI -> nI.getItemId().equals(noteItem.getItemId()))
-                    .map(nI -> nI.getQuantity().multiply(
+                    .filter(noteItemInner -> noteItemInner.getItem().getId().equals(noteItem.getItem().getId()))
+                    .map(noteItemInner -> noteItemInner.getQuantity().multiply(
                         invoice.getTransaction().getTransactionItems().stream()
-                            .filter(tI -> tI.getItem().getId().equals(nI.getItemId()))
+                            .filter(transactionItem -> transactionItem.getItem().getId().equals(noteItemInner.getItem().getId()))
                             .map(TransactionItem::getUnitCost)
                             .reduce(BigDecimal.ZERO, BigDecimal::add)
                     ))
@@ -180,7 +182,7 @@ public class NoteService {
 
                 BigDecimal discount = baseTotal.multiply(
                     invoice.getTransaction().getTransactionItems().stream()
-                        .filter(tI -> tI.getItem().getId().equals(noteItem.getItemId()))
+                        .filter(transactionItem -> transactionItem.getItem().getId().equals(noteItem.getItem().getId()))
                         .map(TransactionItem::getDiscount)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                 ).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
@@ -189,7 +191,7 @@ public class NoteService {
 
                 BigDecimal iva = subtotal.multiply(
                     invoice.getTransaction().getTransactionItems().stream()
-                        .filter(tI -> tI.getItem().getId().equals(noteItem.getItemId()))
+                        .filter(transactionItem -> transactionItem.getItem().getId().equals(noteItem.getItem().getId()))
                         .map(TransactionItem::getIva)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                 ).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);

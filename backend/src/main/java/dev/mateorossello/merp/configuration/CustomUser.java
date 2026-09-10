@@ -1,6 +1,8 @@
 package dev.mateorossello.merp.configuration;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

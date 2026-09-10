@@ -4,10 +4,11 @@ import dev.mateorossello.merp.modules.accounting.dtos.JournalEntryInput;
 import dev.mateorossello.merp.modules.accounting.dtos.JournalEntryOutput;
 import dev.mateorossello.merp.modules.accounting.models.JournalEntry;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {JournalEntryLineMapper.class})
+@Mapper(componentModel = "spring", uses = {JournalEntryLineMapper.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface JournalEntryMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -17,6 +18,5 @@ public interface JournalEntryMapper {
 
     @Mapping(target = "journalEntryLinesOutput", source = "journalEntryLines")
     JournalEntryOutput toOutput(JournalEntry journalEntry);
-
     List<JournalEntryOutput> toOutputList(List<JournalEntry> journalEntries);
 }

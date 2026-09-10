@@ -5,10 +5,10 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record NoteItemInput(
-    @NotNull(message = "Item ID is required")
+    @NotNull(message = "Item ID is required.")
     Long itemId,
 
-    @NotNull(message = "Quantity is required")
-    @Positive(message = "Quantity must be greater than 0")
+    @NotNull(message = "Quantity is required.")
+    @Positive(message = "Quantity must be greater than 0.")
     BigDecimal quantity
 ) {}

@@ -8,13 +8,13 @@ import java.util.List;
 import java.time.LocalDate;
 
 public record JournalEntryInput(
-    @NotNull(message = "Entry date is required")
+    @NotNull(message = "Entry date is required.")
     LocalDate entryDate,
 
-    @NotBlank(message = "Description is required")
+    @NotBlank(message = "Description is required.")
     String description,
 
-    @Size(min = 2, message = "At least two journal entry lines are required")
+    @Size(min = 2, message = "At least two journal entry lines are required.")
     @Valid
     List<JournalEntryLineInput> journalEntryLinesInput
 ) {}

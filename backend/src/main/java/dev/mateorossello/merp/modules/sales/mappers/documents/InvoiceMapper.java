@@ -5,10 +5,11 @@ import dev.mateorossello.merp.modules.sales.dtos.documents.InvoiceOutput;
 import dev.mateorossello.merp.modules.sales.mappers.TransactionMapper;
 import dev.mateorossello.merp.modules.sales.models.documents.Invoice;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {TransactionMapper.class})
+@Mapper(componentModel = "spring", uses = {TransactionMapper.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface InvoiceMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "number", ignore = true)

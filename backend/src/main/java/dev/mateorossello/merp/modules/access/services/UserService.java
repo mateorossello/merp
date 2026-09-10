@@ -30,12 +30,12 @@ public class UserService {
     @Transactional
     public UserOutput createUser(UserInput newUser) {
         if(existsUserByUsername(newUser.username())) {
-            throw new ResourceConflictException("User already exists");
+            throw new ResourceConflictException("User already exists.");
         }
 
         User user = userMapper.toEntity(newUser);
-        user.setPassword(passwordEncoder.encode(newUser.password()));
         user.setProfile(profileService.getProfileById(newUser.profileId()));
+        user.setPassword(passwordEncoder.encode(newUser.password()));
         user = userRepository.save(user);
 
         return userMapper.toOutput(user);
@@ -55,7 +55,7 @@ public class UserService {
     //
 
     protected User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 
     public UserOutput getUserDtoById(Long id) {
@@ -65,7 +65,7 @@ public class UserService {
     // Username related methods
 
     protected User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 
     public UserOutput getUserDtoByUsername(String username) {
@@ -77,7 +77,7 @@ public class UserService {
     }
 
     protected User getUserByUsernameWithProfileAndTasks(String username) {
-        return userRepository.findFullByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findFullByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 
     public UserOutput getUserDtoByUsernameWithProfileAndTasks(String username) {

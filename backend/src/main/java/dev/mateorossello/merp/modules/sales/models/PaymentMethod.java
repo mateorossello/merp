@@ -23,7 +23,7 @@ public class PaymentMethod {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @NotBlank(message = "Name cannot be blank")
+    @NotBlank(message = "Name cannot be blank.")
     @Column(name = "name", unique = true, nullable = false)
     @EqualsAndHashCode.Include
     private String name;

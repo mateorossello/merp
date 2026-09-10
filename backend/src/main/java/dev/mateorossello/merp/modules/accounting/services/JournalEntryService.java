@@ -16,7 +16,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,23 +35,23 @@ public class JournalEntryService {
     private final AccountService accountService;
 
     // Validation methods
-    // These methods are used to validate the input data for creating and updating journal entries
+    // These methods are used to validate the input data for creating journal entries
 
     private void validateEntryDate(LocalDate entryDate) {
         if (entryDate.isAfter(LocalDate.now())) {
-            throw new ResourceConflictException("Journal entry date cannot be in the future");
+            throw new ResourceConflictException("Journal entry date cannot be in the future.");
         }
 
         journalEntryRepository.findFirstByOrderByEntryDateDesc().ifPresent(lastEntry -> {
             if (entryDate.isBefore(lastEntry.getEntryDate())) {
-                throw new ResourceConflictException("Journal entry date cannot be strictly before the last recorded entry date");
+                throw new ResourceConflictException("Journal entry date cannot be strictly before the last recorded entry date.");
             }
         });
     }
 
     private void validateBalanceAndUniqueAccounts(List<JournalEntryLineInput> journalEntryLineInputs) {
         if (journalEntryLineInputs == null || journalEntryLineInputs.size() < 2) {
-            throw new ResourceConflictException("A journal entry must have at least two lines");
+            throw new ResourceConflictException("A journal entry must have at least two lines.");
         }
 
         BigDecimal totalDebits = BigDecimal.ZERO;
@@ -58,11 +60,11 @@ public class JournalEntryService {
 
         for (JournalEntryLineInput journalEntryLine : journalEntryLineInputs) {
             if (!accountIds.add(journalEntryLine.accountId())) {
-                throw new ResourceConflictException("Duplicate accounts are not allowed within the same journal entry");
+                throw new ResourceConflictException("Duplicate accounts are not allowed within the same journal entry.");
             }
 
             if (journalEntryLine.amount() == null || journalEntryLine.amount().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new ResourceConflictException("Journal entry line amounts must be strictly greater than zero");
+                throw new ResourceConflictException("Journal entry line amounts must be strictly greater than zero.");
             }
 
             if (journalEntryLine.debit()) {
@@ -73,7 +75,7 @@ public class JournalEntryService {
         }
 
         if (totalDebits.compareTo(totalCredits) != 0) {
-            throw new ResourceConflictException(String.format("Journal entry is not balanced, total debits: %s, total credits: %s", totalDebits, totalCredits));
+            throw new ResourceConflictException(String.format("Journal entry is not balanced, total debits: %s, total credits: %s.", totalDebits, totalCredits));
         }
     }
 
@@ -84,6 +86,13 @@ public class JournalEntryService {
         validateEntryDate(newJournalEntry.entryDate());
         validateBalanceAndUniqueAccounts(newJournalEntry.journalEntryLinesInput());
 
+        List<Long> accountIds = newJournalEntry.journalEntryLinesInput().stream().map(JournalEntryLineInput::accountId).toList();
+        Map<Long, Account> accountMap = accountService.getAccountsByIds(accountIds).stream().collect(Collectors.toMap(Account::getId, account -> account));
+
+        if (accountMap.size() != accountIds.size()) {
+            throw new ResourceNotFoundException("One or more accounts not found.");
+        }
+
         JournalEntry journalEntry = journalEntryMapper.toEntity(newJournalEntry);
         journalEntry.setCreatedByUserId(userId);
 
@@ -91,10 +100,10 @@ public class JournalEntryService {
             JournalEntryLineInput lineInput = newJournalEntry.journalEntryLinesInput().get(i);
             JournalEntryLine lineEntity = journalEntry.getJournalEntryLines().get(i);
 
-            Account account = accountService.getAccountById(lineInput.accountId());
+            Account account = accountMap.get(lineInput.accountId());
 
             if (!account.isReceiveBalance() || !account.isState()) {
-                throw new ResourceConflictException("Account '" + account.getName() + "' cannot receive balances or is inactive");
+                throw new ResourceConflictException("Account '" + account.getName() + "' cannot receive balances or is inactive.");
             }
 
             lineEntity.setAccount(account);
@@ -111,7 +120,7 @@ public class JournalEntryService {
     //
 
     public JournalEntry getJournalEntryById(Long id) {
-        return journalEntryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Journal entry not found"));
+        return journalEntryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Journal entry not found."));
     }
 
     public JournalEntryOutput getJournalEntryDtoById(Long id) {
@@ -138,7 +147,7 @@ public class JournalEntryService {
     }
 
     public JournalEntry getJournalEntryByLatestDate() {
-        return journalEntryRepository.findFirstByOrderByEntryDateDesc().orElseThrow(() -> new ResourceNotFoundException("No journal entries found"));
+        return journalEntryRepository.findFirstByOrderByEntryDateDesc().orElseThrow(() -> new ResourceNotFoundException("No journal entries found."));
     }
 
     public JournalEntryOutput getJournalEntryDtoByLatestDate() {

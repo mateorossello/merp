@@ -16,6 +16,7 @@ import dev.mateorossello.merp.modules.sales.models.PaymentMethod;
 import dev.mateorossello.merp.modules.sales.models.Transaction;
 import dev.mateorossello.merp.modules.sales.models.TransactionItem;
 import dev.mateorossello.merp.modules.sales.models.TransactionPaymentMethod;
+import dev.mateorossello.merp.modules.sales.models.TransactionType;
 import dev.mateorossello.merp.modules.sales.repositories.documents.DeliveryNoteRepository;
 import dev.mateorossello.merp.modules.sales.repositories.documents.InvoiceRepository;
 import dev.mateorossello.merp.modules.sales.repositories.TransactionRepository;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,15 +56,27 @@ public class TransactionService {
         Customer customer = customerService.getCustomerById(transactionInput.customerId());
         Transaction transaction = new Transaction();
         transaction.setIssueDate(LocalDate.now());
+        transaction.setTransactionType(TransactionType.SALE);
 
         List<TransactionItem> transactionItems = new ArrayList<>();
 
+        List<Long> itemIds = transactionInput.transactionItemsInput().stream().map(TransactionItemInput::itemId).toList();
+        Map<Long, Item> itemMap = itemService.getItemsByIds(itemIds).stream().collect(Collectors.toMap(Item::getId, item -> item));
+
+        if (itemMap.size() != itemIds.size()) {
+            throw new ResourceNotFoundException("One or more items not found.");
+        }
+
         for (TransactionItemInput itemInput : transactionInput.transactionItemsInput()) {
-            Item item = itemService.getItemById(itemInput.itemId());
+            Item item = itemMap.get(itemInput.itemId());
 
             if (item.getCurrentStock().compareTo(itemInput.quantity()) < 0) {
                 throw new ResourceConflictException("Not enough stock for item " + item.getCode() + " - " + item.getName() + ".");
             }
+        }
+
+        for (TransactionItemInput itemInput : transactionInput.transactionItemsInput()) {
+            Item item = itemMap.get(itemInput.itemId());
 
             item.setCurrentStock(item.getCurrentStock().subtract(itemInput.quantity()));
             
@@ -82,7 +96,7 @@ public class TransactionService {
             BigDecimal totalPrice = item.getUnitPrice().multiply(transactionItem.getQuantity());
             BigDecimal discountAmount = totalPrice.multiply(transactionItem.getDiscount()).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
             BigDecimal priceWithDiscount = totalPrice.subtract(discountAmount);
-            BigDecimal ivaAmount = priceWithDiscount.multiply(transactionItem.getIva().divide(new BigDecimal(100), 2, RoundingMode.HALF_UP));
+            BigDecimal ivaAmount = priceWithDiscount.multiply(transactionItem.getIva()).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
             BigDecimal subtotal = priceWithDiscount.add(ivaAmount);
             
             transactionItem.setSubtotal(subtotal);
@@ -95,8 +109,15 @@ public class TransactionService {
 
         List<TransactionPaymentMethod> transactionPaymentMethods = new ArrayList<>();
 
+        List<Long> paymentMethodIds = transactionInput.transactionPaymentMethodsInput().stream().map(TransactionPaymentMethodInput::paymentMethodId).toList();
+        Map<Long, PaymentMethod> paymentMethodMap = paymentMethodService.getPaymentMethodsByIds(paymentMethodIds).stream().collect(Collectors.toMap(PaymentMethod::getId, paymentMethod -> paymentMethod));
+
+        if (paymentMethodMap.size() != paymentMethodIds.size()) {
+            throw new ResourceNotFoundException("One or more payment methods not found.");
+        }
+
         for (TransactionPaymentMethodInput transactionPaymentMethodInput : transactionInput.transactionPaymentMethodsInput()) {
-            PaymentMethod paymentMethod = paymentMethodService.getPaymentMethodById(transactionPaymentMethodInput.paymentMethodId());
+            PaymentMethod paymentMethod = paymentMethodMap.get(transactionPaymentMethodInput.paymentMethodId());
 
             TransactionPaymentMethod transactionPaymentMethod = new TransactionPaymentMethod();
             transactionPaymentMethod.setAmount(transactionPaymentMethodInput.amount());
@@ -153,8 +174,11 @@ public class TransactionService {
         }
 
         if (canCancel) {
+            List<Long> itemIds = transaction.getTransactionItems().stream().map(transactionItem -> transactionItem.getItem().getId()).toList();
+            Map<Long, Item> itemMap = itemService.getItemsByIds(itemIds).stream().collect(Collectors.toMap(Item::getId, item -> item));
+
             for (TransactionItem transactionItem : transaction.getTransactionItems()) {
-                Item item = itemService.getItemById(transactionItem.getItem().getId());
+                Item item = itemMap.get(transactionItem.getItem().getId());
                 
                 BigDecimal newStock = item.getCurrentStock().add(transactionItem.getQuantity());
                 

@@ -55,7 +55,7 @@ public class Transaction {
     private boolean cancelled = false;
 
     @NotNull
-    @PositiveOrZero(message = "Total must be greater than or equal to 0")
+    @PositiveOrZero(message = "Total must be greater than or equal to 0.")
     @Builder.Default
     @Column(name = "total", precision = 10, scale = 2, nullable = false)
     private BigDecimal total = BigDecimal.ZERO;

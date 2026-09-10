@@ -26,7 +26,7 @@ public class TaskService {
     //
 
     protected Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task not found."));
     }
 
     public TaskOutput getTaskDtoById(Long id) {
@@ -36,7 +36,7 @@ public class TaskService {
     // Name related methods
 
     protected Task getTaskByName(TaskType name) {
-        return taskRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        return taskRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Task not found."));
     }
 
     public TaskOutput getTaskDtoByName(TaskType name) {

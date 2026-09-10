@@ -8,25 +8,25 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.Valid;
 
 public record FiscalConfigurationInput(
-    @NotBlank(message = "Legal name is required")
+    @NotBlank(message = "Legal name is required.")
     String legalName,
 
-    @NotNull(message = "Address is required")
+    @NotNull(message = "Address is required.")
     @Valid
     AddressInput address,
 
-    @NotBlank(message = "CUIT is required")
-    @Pattern(regexp = "^[0-9]{11}$", message = "CUIT must contain only 11 digits")
+    @NotBlank(message = "CUIT is required.")
+    @Pattern(regexp = "^[0-9]{11}$", message = "CUIT must contain only 11 digits.")
     String cuit,
 
-    @NotBlank(message = "Phone is required")
-    @Pattern(regexp = "^[0-9]*$", message = "Phone must contain only digits")
+    @NotBlank(message = "Phone is required.")
+    @Pattern(regexp = "^[0-9]*$", message = "Phone must contain only digits.")
     String phone,
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Email should be valid.")
     String email,
 
-    @NotNull(message = "Fiscal type is required")
+    @NotNull(message = "Fiscal type is required.")
     FiscalType fiscalType
 ) {}

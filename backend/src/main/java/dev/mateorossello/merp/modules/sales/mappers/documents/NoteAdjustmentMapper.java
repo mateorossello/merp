@@ -4,10 +4,11 @@ import dev.mateorossello.merp.modules.sales.dtos.documents.NoteAdjustmentInput;
 import dev.mateorossello.merp.modules.sales.dtos.documents.NoteAdjustmentOutput;
 import dev.mateorossello.merp.modules.sales.models.documents.NoteAdjustment;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface NoteAdjustmentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "note", ignore = true)

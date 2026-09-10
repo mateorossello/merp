@@ -5,10 +5,11 @@ import dev.mateorossello.merp.modules.sales.dtos.documents.DeliveryNoteOutput;
 import dev.mateorossello.merp.modules.sales.mappers.TransactionMapper;
 import dev.mateorossello.merp.modules.sales.models.documents.DeliveryNote;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {TransactionMapper.class, DeliveryNoteItemMapper.class})
+@Mapper(componentModel = "spring", uses = {TransactionMapper.class, DeliveryNoteItemMapper.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface DeliveryNoteMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "number", ignore = true)

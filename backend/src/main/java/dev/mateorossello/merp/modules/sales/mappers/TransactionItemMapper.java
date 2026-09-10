@@ -4,10 +4,11 @@ import dev.mateorossello.merp.modules.sales.dtos.TransactionItemInput;
 import dev.mateorossello.merp.modules.sales.dtos.TransactionItemOutput;
 import dev.mateorossello.merp.modules.sales.models.TransactionItem;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface TransactionItemMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "transaction", ignore = true)

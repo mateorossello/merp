@@ -4,10 +4,11 @@ import dev.mateorossello.merp.modules.access.dtos.UserInput;
 import dev.mateorossello.merp.modules.access.dtos.UserOutput;
 import dev.mateorossello.merp.modules.access.models.User;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {ProfileMapper.class})
+@Mapper(componentModel = "spring", uses = {ProfileMapper.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "profile", ignore = true)

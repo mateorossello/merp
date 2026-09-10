@@ -6,23 +6,23 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record TransactionOutput(
-        Long id,
+    Long id,
 
-        TransactionType transactionType,
+    TransactionType transactionType,
 
-        LocalDate issueDate,
+    LocalDate issueDate,
 
-        Long createdByUserId,
+    Long createdByUserId,
 
-        CustomerOutput customer,
+    CustomerOutput customer,
 
-        Long receiptNumber,
+    Long receiptNumber,
 
-        boolean cancelled,
+    boolean cancelled,
 
-        BigDecimal total,
+    BigDecimal total,
 
-        List<TransactionItemOutput> transactionItemsOutput,
+    List<TransactionItemOutput> transactionItemsOutput,
 
-        List<TransactionPaymentMethodOutput> transactionPaymentMethodsOutput) {
-}
+    List<TransactionPaymentMethodOutput> transactionPaymentMethodsOutput
+) {}

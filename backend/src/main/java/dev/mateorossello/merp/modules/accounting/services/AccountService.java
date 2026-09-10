@@ -8,11 +8,11 @@ import dev.mateorossello.merp.modules.accounting.mappers.AccountMapper;
 import dev.mateorossello.merp.modules.accounting.models.Account;
 import dev.mateorossello.merp.modules.accounting.models.AccountType;
 import dev.mateorossello.merp.modules.accounting.repositories.AccountRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service class for managing accounts. Provides methods for creating, deleting, updating and retrieving accounts.
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class AccountService {
+    private static final Pattern CODE_PATTERN = Pattern.compile("^\\d+(\\.\\d+)*$");
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final JournalEntryLineService journalEntryLineService;
@@ -29,40 +30,44 @@ public class AccountService {
 
     @Transactional
     public AccountOutput createAccount(AccountInput newAccount) {
-        if(!newAccount.code().matches("^\\d+(\\.\\d+)*$")) {
-            throw new ResourceConflictException("Account not created, code must follow hierarchical format with numbers separated by dots");
+        if(!CODE_PATTERN.matcher(newAccount.code()).matches()) {
+            throw new ResourceConflictException("Account not created, code must follow hierarchical format with numbers separated by dots.");
+        }
+
+        Account parentAccount = null;
+
+        if(newAccount.parentAccountId() != null) {
+            parentAccount = accountRepository.findById(newAccount.parentAccountId()).orElseThrow(() -> new ResourceNotFoundException("Parent account not found."));
+
+            if (!newAccount.code().matches("^" + Pattern.quote(parentAccount.getCode()) + "\\.\\d+$")) {
+                throw new ResourceConflictException("Account not created, code must be a direct child of the parent account.");
+            }
+
+            if (journalEntryLineService.existsByAccountId(parentAccount.getId())) {
+                throw new ResourceConflictException("Account not created, parent account has journal entry lines associated.");
+            }
+        } else {
+            if (newAccount.type() == null) {
+                throw new ResourceConflictException("Account not created, account type or parent account must be provided.");
+            }
         }
 
         if(existsByCode(newAccount.code())) {
-            throw new ResourceConflictException("Account not created, another account with the same code already exists");
+            throw new ResourceConflictException("Account not created, another account with the same code already exists.");
         }
 
         if(existsByName(newAccount.name())) {
-            throw new ResourceConflictException("Account not created, another account with the same name already exists");
+            throw new ResourceConflictException("Account not created, another account with the same name already exists.");
         }
         
         Account account;
 
-        if(newAccount.parentAccountId() != null) {
-            Account parentAccount = accountRepository.findById(newAccount.parentAccountId()).orElseThrow(() -> new ResourceNotFoundException("Parent account not found"));
-
-            if (!newAccount.code().matches("^" + Pattern.quote(parentAccount.getCode()) + "\\.\\d+$")) {
-                throw new ResourceConflictException("Account not created, code must be a direct child of the parent account");
-            }
-
-            if (journalEntryLineService.existsByAccountId(parentAccount.getId())) {
-                throw new ResourceConflictException("Account not created, parent account has journal entry lines associated");
-            }
-
+        if(parentAccount != null) {
             parentAccount.setReceiveBalance(false);
             accountRepository.save(parentAccount);
 
-            account = Account.builder().parentAccount(parentAccount).code(newAccount.code()).name(newAccount.name()).description(newAccount.description()).build();
+            account = Account.builder().parentAccount(parentAccount).code(newAccount.code()).type(parentAccount.getType()).name(newAccount.name()).description(newAccount.description()).build();
         } else {
-            if (newAccount.type() == null) {
-                throw new ResourceConflictException("Account not created, account type or parent account must be provided");
-            }
-
             account = Account.builder().code(newAccount.code()).type(newAccount.type()).name(newAccount.name()).description(newAccount.description()).build();
         }
 
@@ -74,7 +79,7 @@ public class AccountService {
     @Transactional
     public void deleteAccount(Long id) {
         if(existsByParentAccountId(id)) {
-            throw new ResourceConflictException("Account not deleted, has child accounts associated");
+            throw new ResourceConflictException("Account not deleted, has child accounts associated.");
         }
 
         Account account = getAccountById(id);
@@ -103,15 +108,15 @@ public class AccountService {
         String normalizedDescription = description == null ? null : description.trim();
 
         if (normalizedName == null || normalizedName.isBlank()) {
-            throw new ResourceConflictException("Account not modified, name is required");
+            throw new ResourceConflictException("Account not modified, name is required.");
         }
 
         if (normalizedDescription == null || normalizedDescription.isBlank()) {
-            throw new ResourceConflictException("Account not modified, description is required");
+            throw new ResourceConflictException("Account not modified, description is required.");
         }
 
         if(!account.getName().equals(normalizedName) && existsByName(normalizedName)) {
-            throw new ResourceConflictException("Account not modified, another account with the same name already exists");
+            throw new ResourceConflictException("Account not modified, another account with the same name already exists.");
         }
 
         account.setName(normalizedName);
@@ -125,11 +130,15 @@ public class AccountService {
     //
 
     public Account getAccountById(Long id) {
-        return accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        return accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found."));
     }
 
     public AccountOutput getAccountDtoById(Long id) {
         return accountMapper.toOutput(getAccountById(id));
+    }
+
+    public List<Account> getAccountsByIds(List<Long> ids) {
+        return accountRepository.findAllById(ids);
     }
 
     // Parent account related methods
@@ -141,7 +150,7 @@ public class AccountService {
     // Code related methods
 
     public Account getAccountByCode(String code) {
-        return accountRepository.findByCode(code).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        return accountRepository.findByCode(code).orElseThrow(() -> new ResourceNotFoundException("Account not found."));
     }
 
     public AccountOutput getAccountDtoByCode(String code) {
@@ -153,7 +162,7 @@ public class AccountService {
     }
 
     public Account getAccountByCodeWithParentAccount(String code) {
-        return accountRepository.findFullByCode(code).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        return accountRepository.findFullByCode(code).orElseThrow(() -> new ResourceNotFoundException("Account not found."));
     }
 
     public AccountOutput getAccountDtoByCodeWithParentAccount(String code) {
@@ -173,7 +182,7 @@ public class AccountService {
     // Name related methods
 
     public Account getAccountByName(String name) {
-        return accountRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        return accountRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Account not found."));
     }
 
     public AccountOutput getAccountDtoByName(String name) {

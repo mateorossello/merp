@@ -4,10 +4,11 @@ import dev.mateorossello.merp.modules.accounting.dtos.AccountInput;
 import dev.mateorossello.merp.modules.accounting.dtos.AccountOutput;
 import dev.mateorossello.merp.modules.accounting.models.Account;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface AccountMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "parentAccount", ignore = true)
@@ -17,6 +18,5 @@ public interface AccountMapper {
 
     @Mapping(target = "parentAccountId", source = "parentAccount.id")
     AccountOutput toOutput(Account account);
-
     List<AccountOutput> toOutputList(List<Account> accounts);
 }

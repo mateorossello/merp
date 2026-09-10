@@ -59,7 +59,7 @@ public class InvoiceService {
 
             Map<Long, BigDecimal> deliveryItemsQuantity = deliveryNotes.stream()
                 .flatMap(deliveryNote -> deliveryNote.getDeliveryNoteItems().stream())
-                .collect(Collectors.toMap(DeliveryNoteItem::getItemId, DeliveryNoteItem::getQuantity, BigDecimal::add));
+                .collect(Collectors.toMap(item -> item.getItem().getId(), DeliveryNoteItem::getQuantity, BigDecimal::add));
             
             for (Entry<Long, BigDecimal> entry : transactionItemsQuantity.entrySet()) {
                 Long articleId = entry.getKey();

@@ -25,7 +25,7 @@ public class JournalEntryLineService {
     //
 
     public JournalEntryLine getJournalEntryLineById(Long id) {
-        return journalEntryLineRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Journal entry line not found"));
+        return journalEntryLineRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Journal entry line not found."));
     }
 
     public JournalEntryLineOutput getJournalEntryLineDtoById(Long id) {

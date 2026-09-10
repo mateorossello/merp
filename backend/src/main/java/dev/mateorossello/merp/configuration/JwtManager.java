@@ -20,6 +20,7 @@ public class JwtManager {
         return Algorithm.HMAC512(secretKey);
     }
 
+    // Generate a new token with the given information
     public String generateToken(String subject, Long id, String profile, List<String> tasks, Long permissionsVersion) {
         return JWT.create()
             .withSubject(subject)
@@ -32,9 +33,10 @@ public class JwtManager {
             .sign(getAlgorithm());
     }
 
+    // Clean the prefix from the token
     private String cleanToken(String token) {
         if (token == null) {
-            throw new RuntimeException("Token is null");
+            throw new RuntimeException("Token is null.");
         }
 
         if (token.startsWith("Bearer ")) {
@@ -44,15 +46,18 @@ public class JwtManager {
         return token;
     }
 
+    // Get the decoded token
     private DecodedJWT getDecoded(String token) {
         token = cleanToken(token);
         return JWT.require(getAlgorithm()).build().verify(token);
     }
 
+    // Validate and get the decoded token
     public DecodedJWT validateAndGetDecoded(String token) {
         return getDecoded(token);
     }
 
+    // Validate if the token is valid
     public boolean isValid(String token) {
         try {
             getDecoded(token);

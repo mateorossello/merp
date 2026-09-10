@@ -27,7 +27,7 @@ public class Customer {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @NotBlank(message = "Legal name is required")
+    @NotBlank(message = "Legal name is required.")
     @Column(name = "legal_name", unique = true, nullable = false)
     @EqualsAndHashCode.Include
     private String legalName;
@@ -38,18 +38,18 @@ public class Customer {
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
-    @NotBlank(message = "CUIT is required")
-    @Pattern(regexp = "^[0-9]{11}$", message = "CUIT must contain only 11 digits")
+    @NotBlank(message = "CUIT is required.")
+    @Pattern(regexp = "^[0-9]{11}$", message = "CUIT must contain only 11 digits.")
     @Column(name = "cuit", unique = true, nullable = false)
     private String cuit;
 
-    @NotBlank(message = "Phone is required")
-    @Pattern(regexp = "^[0-9]*$", message = "Phone must contain only digits")
+    @NotBlank(message = "Phone is required.")
+    @Pattern(regexp = "^[0-9]*$", message = "Phone must contain only digits.")
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Email should be valid.")
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 

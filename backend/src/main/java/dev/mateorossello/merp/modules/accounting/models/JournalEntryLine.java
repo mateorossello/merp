@@ -36,7 +36,7 @@ public class JournalEntryLine {
     private Account account;
 
     @NotNull
-    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero.")
     @Column(name = "amount", precision = 19, scale = 4, nullable = false)
     private BigDecimal amount;
 

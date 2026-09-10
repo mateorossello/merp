@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record NoteAdjustmentInput(
-    @NotBlank(message = "Description is required")
+    @NotBlank(message = "Description is required.")
     String description,
 
-    @NotNull(message = "Amount is required")
-    @Positive(message = "Amount must be greater than 0")
+    @NotNull(message = "Amount is required.")
+    @Positive(message = "Amount must be greater than 0.")
     BigDecimal amount
 ) {}

@@ -87,6 +87,10 @@ public class PaymentMethodService {
         return paymentMethodMapper.toOutput(getPaymentMethodById(id));
     }
 
+    public List<PaymentMethod> getPaymentMethodsByIds(List<Long> ids) {
+        return paymentMethodRepository.findAllById(ids);
+    }
+
     public List<PaymentMethodOutput> getAllPaymentMethods() {
         return paymentMethodMapper.toOutputList(paymentMethodRepository.findAll());
     }

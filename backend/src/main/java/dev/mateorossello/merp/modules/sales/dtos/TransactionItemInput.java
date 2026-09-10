@@ -8,28 +8,28 @@ import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
 public record TransactionItemInput(
-    @NotNull
+    @NotNull(message = "Item ID is required.")
     Long itemId,
 
-    @NotNull
-    @PositiveOrZero(message = "Unit price must be greater than or equal to 0")
+    @NotNull(message = "Unit price is required.")
+    @PositiveOrZero(message = "Unit price must be greater than or equal to 0.")
     BigDecimal unitPrice,
 
-    @NotNull
-    @PositiveOrZero(message = "Unit cost must be greater than or equal to 0")
+    @NotNull(message = "Unit cost is required.")
+    @PositiveOrZero(message = "Unit cost must be greater than or equal to 0.")
     BigDecimal unitCost,
 
-    @NotNull
-    @Positive(message = "Quantity must be greater than 0")
+    @NotNull(message = "Quantity is required.")
+    @Positive(message = "Quantity must be greater than 0.")
     BigDecimal quantity,
 
-    @NotNull
-    @DecimalMin(value = "0.0", message = "Discount must be greater than or equal to 0")
-    @DecimalMax(value = "100.0", message = "Discount must be less than or equal to 100")
+    @NotNull(message = "Discount is required.")
+    @DecimalMin(value = "0.0", message = "Discount must be greater than or equal to 0.")
+    @DecimalMax(value = "100.0", message = "Discount must be less than or equal to 100.")
     BigDecimal discount,
 
-    @NotNull
-    @DecimalMin(value = "0.0", message = "IVA must be greater than or equal to 0")
-    @DecimalMax(value = "100.0", message = "IVA must be less than or equal to 100")
+    @NotNull(message = "IVA is required.")
+    @DecimalMin(value = "0.0", message = "IVA must be greater than or equal to 0.")
+    @DecimalMax(value = "100.0", message = "IVA must be less than or equal to 100.")
     BigDecimal iva
 ) {}

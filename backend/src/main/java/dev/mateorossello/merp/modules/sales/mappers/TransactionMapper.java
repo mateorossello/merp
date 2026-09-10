@@ -3,10 +3,11 @@ package dev.mateorossello.merp.modules.sales.mappers;
 import dev.mateorossello.merp.modules.sales.dtos.TransactionOutput;
 import dev.mateorossello.merp.modules.sales.models.Transaction;
 import java.util.List;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {CustomerMapper.class, TransactionItemMapper.class, TransactionPaymentMethodMapper.class})
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, TransactionItemMapper.class, TransactionPaymentMethodMapper.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface TransactionMapper {
     @Mapping(target = "transactionItemsOutput", source = "transactionItems")
     @Mapping(target = "transactionPaymentMethodsOutput", source = "transactionPayments")

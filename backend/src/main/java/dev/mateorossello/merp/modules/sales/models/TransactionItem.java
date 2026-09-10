@@ -39,32 +39,32 @@ public class TransactionItem {
     private Item item;
 
     @NotNull
-    @PositiveOrZero(message = "Unit price must be greater than or equal to 0")
+    @PositiveOrZero(message = "Unit price must be greater than or equal to 0.")
     @Builder.Default
     @Column(name = "unit_price", nullable = false)
     private BigDecimal unitPrice = BigDecimal.ZERO;
 
     @NotNull
-    @PositiveOrZero(message = "Unit cost must be greater than or equal to 0")
+    @PositiveOrZero(message = "Unit cost must be greater than or equal to 0.")
     @Builder.Default
     @Column(name = "unit_cost", nullable = false)
     private BigDecimal unitCost = BigDecimal.ZERO;
 
     @NotNull
-    @Positive(message = "Quantity must be greater than 0")
+    @Positive(message = "Quantity must be greater than 0.")
     @Column(name = "quantity", nullable = false)
     private BigDecimal quantity;
 
     @NotNull
-    @DecimalMin(value = "0.0", message = "Discount must be greater than or equal to 0")
-    @DecimalMax(value = "100.0", message = "Discount must be less than or equal to 100")
+    @DecimalMin(value = "0.0", message = "Discount must be greater than or equal to 0.")
+    @DecimalMax(value = "100.0", message = "Discount must be less than or equal to 100.")
     @Builder.Default
     @Column(name = "discount", nullable = false)
     private BigDecimal discount = BigDecimal.ZERO;
 
     @NotNull
-    @DecimalMin(value = "0.0", message = "IVA must be greater than or equal to 0")
-    @DecimalMax(value = "100.0", message = "IVA must be less than or equal to 100")
+    @DecimalMin(value = "0.0", message = "IVA must be greater than or equal to 0.")
+    @DecimalMax(value = "100.0", message = "IVA must be less than or equal to 100.")
     @Builder.Default
     @Column(name = "iva", nullable = false)
     private BigDecimal iva = BigDecimal.ZERO;

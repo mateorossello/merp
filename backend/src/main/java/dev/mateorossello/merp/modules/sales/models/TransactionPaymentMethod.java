@@ -36,7 +36,7 @@ public class TransactionPaymentMethod {
     private PaymentMethod paymentMethod;
 
     @NotNull
-    @Positive(message = "Amount must be greater than 0")
+    @Positive(message = "Amount must be greater than 0.")
     @Column(name = "amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal amount;
 }

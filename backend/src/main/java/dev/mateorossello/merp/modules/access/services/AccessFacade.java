@@ -20,7 +20,7 @@ public class AccessFacade {
     @Transactional
     public void deleteProfileSafe(Long profileId) {
         if (userService.existsUserByProfileId(profileId)) {
-            throw new ResourceConflictException("Profile not deleted, has users associated");
+            throw new ResourceConflictException("Profile not deleted, has users associated.");
         }
         
         profileService.deleteProfile(profileId);

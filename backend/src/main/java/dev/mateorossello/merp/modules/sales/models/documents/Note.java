@@ -21,17 +21,17 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Table(name = "notes")
 public class Note extends SalesDocument {
-    @NotNull(message = "Invoice ID is required")
+    @NotNull(message = "Invoice is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
 
-    @NotNull(message = "Note type is required")
+    @NotNull(message = "Note type is required.")
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private NoteType noteType;
 
-    @NotBlank(message = "Reason is required")
+    @NotBlank(message = "Reason is required.")
     @Builder.Default
     @Column(name = "reason", nullable = false)
     private String reason = "";

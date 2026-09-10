@@ -1,5 +1,6 @@
 package dev.mateorossello.merp.modules.sales.models.documents;
 
+import dev.mateorossello.merp.modules.sales.models.Item;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -25,16 +26,17 @@ public class NoteItem {
     @EqualsAndHashCode.Include
     private Long id;
     
-    @NotNull(message = "Item ID is required")
-    @Column(name = "item_id", nullable = false)
-    private Long itemId;
+    @NotNull(message = "Item is required.")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
 
-    @NotNull(message = "Quantity is required")
-    @Positive(message = "Quantity must be greater than 0")
+    @NotNull(message = "Quantity is required.")
+    @Positive(message = "Quantity must be greater than 0.")
     @Column(name = "quantity", nullable = false)
     private BigDecimal quantity;
 
-    @NotNull(message = "Note ID is required")
+    @NotNull(message = "Note is required.")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "note_id", nullable = false)
     private Note note;

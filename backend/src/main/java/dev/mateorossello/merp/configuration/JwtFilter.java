@@ -26,16 +26,21 @@ public class JwtFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
+    // Filter the requests to validate the token
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Get the authorization header
         String authorizationHeader = request.getHeader("Authorization");
 
+        // If the header is valid
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             try {
+                // Validate the token and get the decoded token
                 DecodedJWT decodedJWT = jwtManager.validateAndGetDecoded(authorizationHeader);
 
+                // If the decoded token is valid
                 if (decodedJWT != null) {
+                    // Get the user information from the decoded token
                     String username = decodedJWT.getSubject();
                     Long id = decodedJWT.getClaim("id").asLong();
                     String profile = decodedJWT.getClaim("profile").asString();
@@ -43,12 +48,14 @@ public class JwtFilter extends OncePerRequestFilter {
                     Long tokenPermissionsVersion = decodedJWT.getClaim("permissionsVersion").asLong();
                     Long currentPermissionsVersion = userRepository.findPermissionsVersionByUserId(id).orElse(null);
 
+                    // Check if the permissions version is outdated
                     if (!Objects.equals(tokenPermissionsVersion, currentPermissionsVersion)) {
                         SecurityContextHolder.clearContext();
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token permissions are outdated");
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token permissions are outdated.");
                         return;
                     }
 
+                    // Set the authorities and add tasks to authorities
                     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
                     authorities.add(new SimpleGrantedAuthority("ROLE_" + profile.toUpperCase()));
                     
@@ -58,6 +65,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         }
                     }
 
+                    // Set the authentication and add to context
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         new CustomUser(id, username),
                         null,
@@ -68,11 +76,12 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             } catch (Exception exception) {
                 SecurityContextHolder.clearContext();
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
                 return;
             }
         }
 
+        // Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

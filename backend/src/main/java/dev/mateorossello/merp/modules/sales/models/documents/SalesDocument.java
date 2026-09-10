@@ -27,11 +27,11 @@ public abstract class SalesDocument {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @NotNull(message = "Number is required")
+    @NotNull(message = "Number is required.")
     @Column(name = "number", unique = true, nullable = false)
     private Long number;
 
-    @NotNull(message = "Issue date is required")
+    @NotNull(message = "Issue date is required.")
     @Column(name = "issue_date", nullable = false)
     private LocalDate issueDate;
 
@@ -39,7 +39,7 @@ public abstract class SalesDocument {
     @JoinColumn(name = "transaction_id", nullable = true)
     private Transaction transaction;
 
-    @NotNull(message = "Created by user ID is required")
+    @NotNull(message = "Created by user ID is required.")
     @Column(name = "created_by_user_id", nullable = false)
     private Long createdByUserId;
 }

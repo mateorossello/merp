@@ -31,11 +31,11 @@ public class AuthenticationService {
         try {
             userStored = userService.getUserByUsernameWithProfileAndTasks(username);
         } catch (ResourceNotFoundException exception) {
-            throw new UnauthorizedException("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials.");
         }
 
         if(!passwordEncoder.matches(password, userStored.getPassword())) {
-            throw new UnauthorizedException("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials.");
         }
 
         Profile profile = userStored.getProfile();

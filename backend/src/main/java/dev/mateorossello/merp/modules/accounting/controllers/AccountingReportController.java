@@ -4,19 +4,25 @@ import dev.mateorossello.merp.modules.accounting.dtos.GeneralJournalOutput;
 import dev.mateorossello.merp.modules.accounting.dtos.GeneralLedgerOutput;
 import dev.mateorossello.merp.modules.accounting.services.AccountingReportService;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller class for managing accounting reports. Provides methods for retrieving general journal and general ledger.
+ */
+
 @RestController
 @RequestMapping("/reports")
+@AllArgsConstructor
 public class AccountingReportController {
     private final AccountingReportService accountingReportService;
 
-    public AccountingReportController(AccountingReportService accountingReportService) {
-        this.accountingReportService = accountingReportService;
-    }
+    //
+    // Get methods
+    //
 
     @GetMapping("/general-journal")
     @PreAuthorize("hasAuthority('VIEW_REPORTS')")

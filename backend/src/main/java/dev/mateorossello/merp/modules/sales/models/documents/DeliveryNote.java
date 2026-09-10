@@ -32,7 +32,7 @@ public class DeliveryNote extends SalesDocument {
     @Column(name = "cancellation_reason", nullable = true)
     private String cancellationReason;
 
-    @NotNull(message = "Delivery note type is required")
+    @NotNull(message = "Delivery note type is required.")
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryNoteType deliveryNoteType;

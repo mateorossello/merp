@@ -8,18 +8,18 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record DeliveryNoteInput(
-    @NotNull(message = "Issue date is required")
+    @NotNull(message = "Issue date is required.")
     LocalDate issueDate,
 
     Long transactionId,
 
-    @NotNull(message = "Delivery date is required")
+    @NotNull(message = "Delivery date is required.")
     LocalDate deliveryDate,
 
-    @NotNull(message = "Delivery note type is required")
+    @NotNull(message = "Delivery note type is required.")
     DeliveryNoteType deliveryNoteType,
 
-    @NotEmpty(message = "Delivery items are required")
+    @NotEmpty(message = "Delivery items are required.")
     @Valid
     List<DeliveryNoteItemInput> deliveryNoteItemsInput
 ) {}

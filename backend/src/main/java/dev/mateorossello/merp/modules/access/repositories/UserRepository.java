@@ -23,6 +23,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     List<User> findAllByProfileId(Long id);
     boolean existsByProfileId(Long id);
 
-    @Query("select user.profile.permissionsVersion from User user where user.id = :id")
+    @Query("SELECT user.profile.permissionsVersion FROM User user WHERE user.id = :id")
     Optional<Long> findPermissionsVersionByUserId(@Param("id") Long id);
 }

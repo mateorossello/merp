@@ -26,16 +26,16 @@ public class NoteAdjustment {
     @EqualsAndHashCode.Include
     private Long id;
     
-    @NotBlank(message = "Description is required")
+    @NotBlank(message = "Description is required.")
     @Column(name = "description", nullable = false)
     private String description;
 
-    @NotNull(message = "Amount is required")
-    @Positive(message = "Amount must be greater than 0")
+    @NotNull(message = "Amount is required.")
+    @Positive(message = "Amount must be greater than 0.")
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
-    @NotNull(message = "Note ID is required")
+    @NotNull(message = "Note is required.")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "note_id", nullable = false)
     private Note note;
