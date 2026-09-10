@@ -16,8 +16,10 @@ public interface InvoiceMapper {
     @Mapping(target = "transaction", ignore = true)
     @Mapping(target = "createdByUserId", ignore = true)
     @Mapping(target = "invoiceType", ignore = true)
+    @Mapping(target = "journalEntry", ignore = true)
     Invoice toEntity(InvoiceInput invoiceInput);
 
+    @Mapping(source = "journalEntry.id", target = "journalEntryId")
     InvoiceOutput toOutput(Invoice invoice);
     List<InvoiceOutput> toOutputList(List<Invoice> invoices);
 }

@@ -1,9 +1,9 @@
 export const ACCOUNT_TYPES = [
-  "ASSET",
-  "LIABILITY",
-  "EQUITY",
-  "REVENUE",
-  "EXPENSE",
+  "ACTIVO",
+  "PASIVO",
+  "PATRIMONIO_NETO",
+  "RESULTADOS_POSITIVOS",
+  "RESULTADOS_NEGATIVOS",
 ] as const;
 
 export type AccountType = (typeof ACCOUNT_TYPES)[number];

@@ -1,5 +1,6 @@
 package dev.mateorossello.merp.modules.sales.models.documents;
 
+import dev.mateorossello.merp.modules.accounting.models.JournalEntry;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -27,4 +28,8 @@ public class Invoice extends SalesDocument {
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private InvoiceType invoiceType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "journal_entry_id")
+    private JournalEntry journalEntry;
 }

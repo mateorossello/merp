@@ -49,8 +49,8 @@ public class JournalEntryService {
         });
     }
 
-    private void validateBalanceAndUniqueAccounts(List<JournalEntryLineInput> journalEntryLineInputs) {
-        if (journalEntryLineInputs == null || journalEntryLineInputs.size() < 2) {
+    private void validateBalanceAndAccounts(List<JournalEntryLine> journalEntryLines) {
+        if (journalEntryLines == null || journalEntryLines.size() < 2) {
             throw new ResourceConflictException("A journal entry must have at least two lines.");
         }
 
@@ -58,19 +58,25 @@ public class JournalEntryService {
         BigDecimal totalCredits = BigDecimal.ZERO;
         Set<Long> accountIds = new HashSet<>();
 
-        for (JournalEntryLineInput journalEntryLine : journalEntryLineInputs) {
-            if (!accountIds.add(journalEntryLine.accountId())) {
+        for (JournalEntryLine journalEntryLine : journalEntryLines) {
+            Account account = journalEntryLine.getAccount();
+            
+            if (!accountIds.add(account.getId())) {
                 throw new ResourceConflictException("Duplicate accounts are not allowed within the same journal entry.");
             }
+            
+            if (!account.isReceiveBalance() || !account.isState()) {
+                throw new ResourceConflictException("Account '" + account.getName() + "' cannot receive balances or is inactive.");
+            }
 
-            if (journalEntryLine.amount() == null || journalEntryLine.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            if (journalEntryLine.getAmount() == null || journalEntryLine.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new ResourceConflictException("Journal entry line amounts must be strictly greater than zero.");
             }
 
-            if (journalEntryLine.debit()) {
-                totalDebits = totalDebits.add(journalEntryLine.amount());
+            if (journalEntryLine.isDebit()) {
+                totalDebits = totalDebits.add(journalEntryLine.getAmount());
             } else {
-                totalCredits = totalCredits.add(journalEntryLine.amount());
+                totalCredits = totalCredits.add(journalEntryLine.getAmount());
             }
         }
 
@@ -82,9 +88,14 @@ public class JournalEntryService {
     // Create methods
 
     @Transactional
+    public JournalEntry createJournalEntry(JournalEntry journalEntry) {
+        validateBalanceAndAccounts(journalEntry.getJournalEntryLines());
+        return journalEntryRepository.save(journalEntry);
+    }
+
+    @Transactional
     public JournalEntryOutput createJournalEntry(JournalEntryInput newJournalEntry) {
         validateEntryDate(newJournalEntry.entryDate());
-        validateBalanceAndUniqueAccounts(newJournalEntry.journalEntryLinesInput());
 
         List<Long> accountIds = newJournalEntry.journalEntryLinesInput().stream().map(JournalEntryLineInput::accountId).toList();
         Map<Long, Account> accountMap = accountService.getAccountsByIds(accountIds).stream().collect(Collectors.toMap(Account::getId, account -> account));
@@ -100,16 +111,11 @@ public class JournalEntryService {
             JournalEntryLine lineEntity = journalEntry.getJournalEntryLines().get(i);
 
             Account account = accountMap.get(lineInput.accountId());
-
-            if (!account.isReceiveBalance() || !account.isState()) {
-                throw new ResourceConflictException("Account '" + account.getName() + "' cannot receive balances or is inactive.");
-            }
-
             lineEntity.setAccount(account);
             lineEntity.setJournalEntry(journalEntry);
         }
 
-        JournalEntry journalEntrySaved = journalEntryRepository.save(journalEntry);
+        JournalEntry journalEntrySaved = createJournalEntry(journalEntry);
 
         return journalEntryMapper.toOutput(journalEntrySaved);
     }

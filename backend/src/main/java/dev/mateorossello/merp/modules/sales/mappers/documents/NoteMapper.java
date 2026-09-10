@@ -18,10 +18,12 @@ public interface NoteMapper {
     @Mapping(target = "createdByUserId", ignore = true)
     @Mapping(target = "noteItems", ignore = true)
     @Mapping(target = "noteAdjustments", ignore = true)
+    @Mapping(target = "journalEntry", ignore = true)
     Note toEntity(NoteInput noteInput);
 
     @Mapping(target = "noteItemsOutput", source = "noteItems")
     @Mapping(target = "noteAdjustmentsOutput", source = "noteAdjustments")
+    @Mapping(source = "journalEntry.id", target = "journalEntryId")
     NoteOutput toOutput(Note note);
     List<NoteOutput> toOutputList(List<Note> notes);
 }

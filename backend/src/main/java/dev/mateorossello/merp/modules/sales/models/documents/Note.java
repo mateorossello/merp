@@ -1,5 +1,6 @@
 package dev.mateorossello.merp.modules.sales.models.documents;
 
+import dev.mateorossello.merp.modules.accounting.models.JournalEntry;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -63,4 +64,8 @@ public class Note extends SalesDocument {
         adjustment.setNote(null);
         this.noteAdjustments.remove(adjustment);
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "journal_entry_id")
+    private JournalEntry journalEntry;
 }

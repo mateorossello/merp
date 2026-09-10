@@ -24,5 +24,7 @@ public record NoteOutput(
 
     List<NoteItemOutput> noteItemsOutput,
 
-    List<NoteAdjustmentOutput> noteAdjustmentsOutput
+    List<NoteAdjustmentOutput> noteAdjustmentsOutput,
+
+    Long journalEntryId
 ) {}

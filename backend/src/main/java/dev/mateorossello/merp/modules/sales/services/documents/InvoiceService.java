@@ -2,6 +2,11 @@ package dev.mateorossello.merp.modules.sales.services.documents;
 
 import dev.mateorossello.merp.exceptions.ResourceConflictException;
 import dev.mateorossello.merp.exceptions.ResourceNotFoundException;
+import dev.mateorossello.merp.modules.accounting.AccountingDefaults;
+import dev.mateorossello.merp.modules.accounting.models.JournalEntry;
+import dev.mateorossello.merp.modules.accounting.models.JournalEntryLine;
+import dev.mateorossello.merp.modules.accounting.services.AccountService;
+import dev.mateorossello.merp.modules.accounting.services.JournalEntryService;
 import dev.mateorossello.merp.modules.sales.dtos.documents.InvoiceInput;
 import dev.mateorossello.merp.modules.sales.dtos.documents.InvoiceOutput;
 import dev.mateorossello.merp.modules.sales.mappers.documents.InvoiceMapper;
@@ -41,6 +46,8 @@ public class InvoiceService {
     private final FiscalConfigurationService fiscalConfigurationService;
     private final TransactionService transactionService;
     private final DeliveryNoteRepository deliveryNoteRepository;
+    private final AccountService accountService;
+    private final JournalEntryService journalEntryService;
 
     //
     // Create methods
@@ -126,7 +133,8 @@ public class InvoiceService {
             totalCost = totalCost.add(transactionItem.getQuantity().multiply(transactionItem.getUnitCost()));
         }
 
-        // generateInvoiceJournalEntry(userId, transaction, totalSale, totalSaleWithIva, totalCost);
+        JournalEntry journalEntry = generateInvoiceJournalEntry(invoice, invoice.getInvoiceType(), totalSale, totalSaleWithIva, totalCost);
+        invoice.setJournalEntry(journalEntry);
         
         invoice = invoiceRepository.save(invoice);
 
@@ -176,5 +184,50 @@ public class InvoiceService {
         return invoiceMapper.toOutputList(invoiceRepository.findAllByDueDate(dueDate));
     }
 
-    // TODO: Generar asientos contables a partir de las facturas.
+    private JournalEntry generateInvoiceJournalEntry(Invoice invoice, InvoiceType invoiceType, BigDecimal totalSale, BigDecimal totalSaleWithIva, BigDecimal totalCost) {
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.setEntryDate(invoice.getIssueDate());
+        journalEntry.setDescription("Automatic Journal Entry - Invoice #" + invoice.getNumber());
+
+        // Deudores por Ventas
+        JournalEntryLine deudoresJournalEntryLine = new JournalEntryLine();
+        deudoresJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.DEUDORES_POR_VENTAS));
+        deudoresJournalEntryLine.setAmount(totalSaleWithIva);
+        deudoresJournalEntryLine.setDebit(true);
+        journalEntry.addJournalEntryLine(deudoresJournalEntryLine);
+
+        // Ventas
+        JournalEntryLine ventasJournalEntryLine = new JournalEntryLine();
+        ventasJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.VENTAS));
+        ventasJournalEntryLine.setAmount(invoiceType == InvoiceType.C ? totalSaleWithIva : totalSale);
+        ventasJournalEntryLine.setDebit(false);
+        journalEntry.addJournalEntryLine(ventasJournalEntryLine);
+
+        if (invoiceType != InvoiceType.C && totalSaleWithIva.compareTo(totalSale) > 0) {
+            // IVA Débito Fiscal
+            JournalEntryLine ivaJournalEntryLine = new JournalEntryLine();
+            ivaJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.IVA_DEBITO_FISCAL));
+            ivaJournalEntryLine.setAmount(totalSaleWithIva.subtract(totalSale));
+            ivaJournalEntryLine.setDebit(false);
+            journalEntry.addJournalEntryLine(ivaJournalEntryLine);
+        }
+
+        if (totalCost.compareTo(BigDecimal.ZERO) > 0) {
+            // CMV
+            JournalEntryLine cmvJournalEntryLine = new JournalEntryLine();
+            cmvJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.CMV));
+            cmvJournalEntryLine.setAmount(totalCost);
+            cmvJournalEntryLine.setDebit(true);
+            journalEntry.addJournalEntryLine(cmvJournalEntryLine);
+
+            // Mercaderías
+            JournalEntryLine mercaderiasJournalEntryLine = new JournalEntryLine();
+            mercaderiasJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.MERCADERIAS));
+            mercaderiasJournalEntryLine.setAmount(totalCost);
+            mercaderiasJournalEntryLine.setDebit(false);
+            journalEntry.addJournalEntryLine(mercaderiasJournalEntryLine);
+        }
+
+        return journalEntryService.createJournalEntry(journalEntry);
+    }
 }

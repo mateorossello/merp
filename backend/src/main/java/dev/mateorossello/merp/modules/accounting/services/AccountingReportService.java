@@ -44,7 +44,7 @@ public class AccountingReportService {
     }
 
     private BigDecimal updateBalance(BigDecimal currentBalance, BigDecimal debit, BigDecimal credit, AccountType type) {
-        if (type == AccountType.ASSET || type == AccountType.EXPENSE) {
+        if (type == AccountType.ACTIVO || type == AccountType.RESULTADOS_NEGATIVOS) {
             return currentBalance.add(debit).subtract(credit);
         } else {
             return currentBalance.add(credit).subtract(debit);

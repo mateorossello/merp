@@ -2,6 +2,7 @@ package dev.mateorossello.merp.modules.sales.services;
 
 import dev.mateorossello.merp.exceptions.ResourceConflictException;
 import dev.mateorossello.merp.exceptions.ResourceNotFoundException;
+import dev.mateorossello.merp.modules.accounting.services.AccountService;
 import dev.mateorossello.merp.modules.sales.dtos.PaymentMethodInput;
 import dev.mateorossello.merp.modules.sales.dtos.PaymentMethodOutput;
 import dev.mateorossello.merp.modules.sales.mappers.PaymentMethodMapper;
@@ -22,6 +23,7 @@ public class PaymentMethodService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final PaymentMethodMapper paymentMethodMapper;
     private final TransactionPaymentMethodService transactionPaymentMethodService;
+    private final AccountService accountService;
 
     // 
     // Create methods
@@ -35,6 +37,10 @@ public class PaymentMethodService {
 
         PaymentMethod paymentMethod = paymentMethodMapper.toEntity(paymentMethodInput);
         
+        if (paymentMethodInput.accountId() != null) {
+            paymentMethod.setAccount(accountService.getAccountById(paymentMethodInput.accountId()));
+        }
+
         paymentMethod = paymentMethodRepository.save(paymentMethod);
 
         return paymentMethodMapper.toOutput(paymentMethod);
@@ -70,6 +76,12 @@ public class PaymentMethodService {
         });
 
         paymentMethod.setName(paymentMethodInput.name());
+
+        if (paymentMethodInput.accountId() != null) {
+            paymentMethod.setAccount(accountService.getAccountById(paymentMethodInput.accountId()));
+        } else {
+            paymentMethod.setAccount(null);
+        }
 
         return paymentMethodMapper.toOutput(paymentMethodRepository.save(paymentMethod));
     }

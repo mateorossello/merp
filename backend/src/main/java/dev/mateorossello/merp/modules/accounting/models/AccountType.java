@@ -5,9 +5,9 @@ package dev.mateorossello.merp.modules.accounting.models;
  */
 
 public enum AccountType {
-    ASSET,
-    LIABILITY,
-    EQUITY,
-    REVENUE,
-    EXPENSE
+    ACTIVO,
+    PASIVO,
+    PATRIMONIO_NETO,
+    RESULTADOS_POSITIVOS,
+    RESULTADOS_NEGATIVOS
 }

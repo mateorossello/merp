@@ -4,5 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record PaymentMethodInput(
     @NotBlank(message = "Name cannot be blank.")
-    String name
+    String name,
+
+    Long accountId
 ) {}

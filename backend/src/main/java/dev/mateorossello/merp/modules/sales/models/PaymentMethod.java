@@ -1,5 +1,6 @@
 package dev.mateorossello.merp.modules.sales.models;
 
+import dev.mateorossello.merp.modules.accounting.models.Account;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -27,4 +28,8 @@ public class PaymentMethod {
     @Column(name = "name", unique = true, nullable = false)
     @EqualsAndHashCode.Include
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account account;
 }

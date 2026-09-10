@@ -2,6 +2,11 @@ package dev.mateorossello.merp.modules.sales.services;
 
 import dev.mateorossello.merp.exceptions.ResourceConflictException;
 import dev.mateorossello.merp.exceptions.ResourceNotFoundException;
+import dev.mateorossello.merp.modules.accounting.AccountingDefaults;
+import dev.mateorossello.merp.modules.accounting.models.JournalEntry;
+import dev.mateorossello.merp.modules.accounting.models.JournalEntryLine;
+import dev.mateorossello.merp.modules.accounting.services.AccountService;
+import dev.mateorossello.merp.modules.accounting.services.JournalEntryService;
 import dev.mateorossello.merp.modules.sales.dtos.ItemInput;
 import dev.mateorossello.merp.modules.sales.dtos.ItemOutput;
 import dev.mateorossello.merp.modules.sales.dtos.ItemPurchaseInput;
@@ -29,6 +34,8 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
     private final TransactionItemService transactionItemService;
+    private final AccountService accountService;
+    private final JournalEntryService journalEntryService;
 
     // Utility methods
     // These methods are used to generate random codes and journal entries
@@ -153,7 +160,7 @@ public class ItemService {
             .map(purchase -> purchase.purchaseUnitPrice().multiply(purchase.quantity()))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // generatePurchaseJournalEntry(totalAmount, totalIvaAmount);
+        generatePurchaseJournalEntry(totalAmount, totalIvaAmount);
 
         itemRepository.saveAll(items);
     }
@@ -193,5 +200,31 @@ public class ItemService {
         return itemMapper.toOutputList(itemRepository.findAllByCurrentStockLessThanMinimumStock());
     }
 
-    // TODO: Generar asientos contables a partir de la compra de artículos.
+    private JournalEntry generatePurchaseJournalEntry(BigDecimal totalAmount, BigDecimal totalIvaAmount) {
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.setEntryDate(java.time.LocalDate.now());
+        journalEntry.setDescription("Automatic Journal Entry - Item Purchase");
+
+        JournalEntryLine mercaderiasJournalEntryLine = new JournalEntryLine();
+        mercaderiasJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.MERCADERIAS));
+        mercaderiasJournalEntryLine.setAmount(totalAmount);
+        mercaderiasJournalEntryLine.setDebit(true);
+        journalEntry.addJournalEntryLine(mercaderiasJournalEntryLine);
+
+        if (totalIvaAmount.compareTo(BigDecimal.ZERO) > 0) {
+            JournalEntryLine ivaJournalEntryLine = new JournalEntryLine();
+            ivaJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.IVA_CREDITO_FISCAL));
+            ivaJournalEntryLine.setAmount(totalIvaAmount);
+            ivaJournalEntryLine.setDebit(true);
+            journalEntry.addJournalEntryLine(ivaJournalEntryLine);
+        }
+
+        JournalEntryLine proveedorJournalEntryLine = new JournalEntryLine();
+        proveedorJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.PROVEEDORES));
+        proveedorJournalEntryLine.setAmount(totalAmount.add(totalIvaAmount));
+        proveedorJournalEntryLine.setDebit(false);
+        journalEntry.addJournalEntryLine(proveedorJournalEntryLine);
+
+        return journalEntryService.createJournalEntry(journalEntry);
+    }
 }

@@ -17,5 +17,7 @@ public record InvoiceOutput(
 
     LocalDate dueDate,
 
-    InvoiceType invoiceType
+    InvoiceType invoiceType,
+
+    Long journalEntryId
 ) {}

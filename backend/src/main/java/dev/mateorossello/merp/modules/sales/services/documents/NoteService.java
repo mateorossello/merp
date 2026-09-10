@@ -2,6 +2,11 @@ package dev.mateorossello.merp.modules.sales.services.documents;
 
 import dev.mateorossello.merp.exceptions.ResourceConflictException;
 import dev.mateorossello.merp.exceptions.ResourceNotFoundException;
+import dev.mateorossello.merp.modules.accounting.AccountingDefaults;
+import dev.mateorossello.merp.modules.accounting.models.JournalEntry;
+import dev.mateorossello.merp.modules.accounting.models.JournalEntryLine;
+import dev.mateorossello.merp.modules.accounting.services.AccountService;
+import dev.mateorossello.merp.modules.accounting.services.JournalEntryService;
 import dev.mateorossello.merp.modules.sales.dtos.documents.NoteAdjustmentInput;
 import dev.mateorossello.merp.modules.sales.dtos.documents.NoteInput;
 import dev.mateorossello.merp.modules.sales.dtos.documents.NoteItemInput;
@@ -34,6 +39,8 @@ public class NoteService {
     private final NoteMapper noteMapper;
     private final ItemService itemService;
     private final InvoiceService invoiceService;
+    private final AccountService accountService;
+    private final JournalEntryService journalEntryService;
 
     //
     // Create methods
@@ -200,10 +207,11 @@ public class NoteService {
             }
         }
 
-        // generateNoteJournalEntry(note, note.getNoteType(), 
-        // note.getNoteItems() != null && !note.getNoteItems().isEmpty(), 
-        // note.getNoteAdjustments() != null && !note.getNoteAdjustments().isEmpty(), 
-        // totalItems, totalIva, totalAdjustments, totalCost);
+        JournalEntry journalEntry = generateNoteJournalEntry(note, note.getNoteType(), 
+            note.getNoteItems() != null && !note.getNoteItems().isEmpty(), 
+            note.getNoteAdjustments() != null && !note.getNoteAdjustments().isEmpty(), 
+            totalItems, totalIva, totalAdjustments, totalCost);
+        note.setJournalEntry(journalEntry);
 
         note = noteRepository.save(note);
 
@@ -253,5 +261,105 @@ public class NoteService {
         return noteMapper.toOutputList(noteRepository.findAllByNoteType(noteType));
     }
 
-    // TODO: Generar asientos contables a partir de las notas.
+    private JournalEntry generateNoteJournalEntry(Note note, NoteType noteType, boolean hasItems, boolean hasAdjustments, BigDecimal totalItems, BigDecimal totalIva, BigDecimal totalAdjustments, BigDecimal totalCost) {
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.setEntryDate(note.getIssueDate());
+        journalEntry.setDescription("Automatic Journal Entry - " + (noteType == NoteType.CREDIT ? "Credit Note" : "Debit Note") + " #" + note.getNumber());
+
+        if (noteType == NoteType.CREDIT) {
+            // CREDIT NOTE
+            
+            if (hasItems) {
+                JournalEntryLine devolucionesJournalEntryLine = new JournalEntryLine();
+                devolucionesJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.DEVOLUCIONES_VENTAS));
+                devolucionesJournalEntryLine.setAmount(totalItems);
+                devolucionesJournalEntryLine.setDebit(true);
+                journalEntry.addJournalEntryLine(devolucionesJournalEntryLine);
+
+                if (totalCost.compareTo(BigDecimal.ZERO) > 0) {
+                    JournalEntryLine mercaderiasJournalEntryLine = new JournalEntryLine();
+                    mercaderiasJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.MERCADERIAS));
+                    mercaderiasJournalEntryLine.setAmount(totalCost);
+                    mercaderiasJournalEntryLine.setDebit(true);
+                    journalEntry.addJournalEntryLine(mercaderiasJournalEntryLine);
+
+                    JournalEntryLine cmvJournalEntryLine = new JournalEntryLine();
+                    cmvJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.CMV));
+                    cmvJournalEntryLine.setAmount(totalCost);
+                    cmvJournalEntryLine.setDebit(false);
+                    journalEntry.addJournalEntryLine(cmvJournalEntryLine);
+                }
+            }
+
+            if (hasAdjustments) {
+                JournalEntryLine ajustesJournalEntryLine = new JournalEntryLine();
+                ajustesJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.AJUSTES_VENTAS));
+                ajustesJournalEntryLine.setAmount(totalAdjustments);
+                ajustesJournalEntryLine.setDebit(true);
+                journalEntry.addJournalEntryLine(ajustesJournalEntryLine);
+            }
+
+            if (totalIva.compareTo(BigDecimal.ZERO) > 0) {
+                JournalEntryLine ivaJournalEntryLine = new JournalEntryLine();
+                ivaJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.IVA_DEBITO_FISCAL));
+                ivaJournalEntryLine.setAmount(totalIva);
+                ivaJournalEntryLine.setDebit(true);
+                journalEntry.addJournalEntryLine(ivaJournalEntryLine);
+            }
+
+            JournalEntryLine deudoresJournalEntryLine = new JournalEntryLine();
+            deudoresJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.DEUDORES_POR_VENTAS));
+            deudoresJournalEntryLine.setAmount(totalItems.add(totalIva).add(totalAdjustments));
+            deudoresJournalEntryLine.setDebit(false);
+            journalEntry.addJournalEntryLine(deudoresJournalEntryLine);
+        } else {
+            // DEBIT NOTE
+
+            if (hasItems) {
+                JournalEntryLine ventasJournalEntryLine = new JournalEntryLine();
+                ventasJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.VENTAS));
+                ventasJournalEntryLine.setAmount(totalItems);
+                ventasJournalEntryLine.setDebit(false);
+                journalEntry.addJournalEntryLine(ventasJournalEntryLine);
+
+                if (totalCost.compareTo(BigDecimal.ZERO) > 0) {
+                    JournalEntryLine cmvJournalEntryLine = new JournalEntryLine();
+                    cmvJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.CMV));
+                    cmvJournalEntryLine.setAmount(totalCost);
+                    cmvJournalEntryLine.setDebit(true);
+                    journalEntry.addJournalEntryLine(cmvJournalEntryLine);
+
+                    JournalEntryLine mercaderiasJournalEntryLine = new JournalEntryLine();
+                    mercaderiasJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.MERCADERIAS));
+                    mercaderiasJournalEntryLine.setAmount(totalCost);
+                    mercaderiasJournalEntryLine.setDebit(false);
+                    journalEntry.addJournalEntryLine(mercaderiasJournalEntryLine);
+                }
+            }
+
+            if (hasAdjustments) {
+                JournalEntryLine ajustesJournalEntryLine = new JournalEntryLine();
+                ajustesJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.AJUSTES_VENTAS));
+                ajustesJournalEntryLine.setAmount(totalAdjustments);
+                ajustesJournalEntryLine.setDebit(false);
+                journalEntry.addJournalEntryLine(ajustesJournalEntryLine);
+            }
+
+            if (totalIva.compareTo(BigDecimal.ZERO) > 0) {
+                JournalEntryLine ivaJournalEntryLine = new JournalEntryLine();
+                ivaJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.IVA_DEBITO_FISCAL));
+                ivaJournalEntryLine.setAmount(totalIva);
+                ivaJournalEntryLine.setDebit(false);
+                journalEntry.addJournalEntryLine(ivaJournalEntryLine);
+            }
+
+            JournalEntryLine deudoresJournalEntryLine = new JournalEntryLine();
+            deudoresJournalEntryLine.setAccount(accountService.getAccountByCode(AccountingDefaults.DEUDORES_POR_VENTAS));
+            deudoresJournalEntryLine.setAmount(totalItems.add(totalIva).add(totalAdjustments));
+            deudoresJournalEntryLine.setDebit(true);
+            journalEntry.addJournalEntryLine(deudoresJournalEntryLine);
+        }
+
+        return journalEntryService.createJournalEntry(journalEntry);
+    }
 }
