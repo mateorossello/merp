@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import type { RowInput } from "jspdf-autotable";
 import type { GeneralJournalOutput } from "../../../types/accounting/GeneralJournalOutput";
 import api from "../../../utils/api";
 import { extractFirstError } from "../../../utils/methods";
@@ -137,7 +138,7 @@ function GeneralJournal() {
       "Credit",
     ];
 
-    const tableRows: any[] = [];
+    const tableRows: RowInput[] = [];
 
     previewData.forEach((row) => {
       const displayAccount =

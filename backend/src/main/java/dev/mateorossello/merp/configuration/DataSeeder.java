@@ -110,5 +110,5 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
-    // TODO: Limpiar generación de datos automáticos para producción.
+    // TODO: Limpiar la generación automática de ciertos datos para el entorno de producción.
 }
